@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "malformed_request",
+    "field": "desks[0].id"
+  }
+}

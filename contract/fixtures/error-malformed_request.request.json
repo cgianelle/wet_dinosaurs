@@ -1,0 +1,47 @@
+{
+  "grid": {
+    "columns": 3,
+    "rows": 3
+  },
+  "frontEdge": "top",
+  "desks": [
+    {
+      "id": "has space",
+      "column": 0,
+      "row": 0
+    },
+    {
+      "id": "d2",
+      "column": 1,
+      "row": 0
+    }
+  ],
+  "students": [
+    {
+      "id": "s1"
+    },
+    {
+      "id": "s2"
+    }
+  ],
+  "rules": [
+    {
+      "id": "r1",
+      "type": "front",
+      "studentId": "s1"
+    },
+    {
+      "id": "r2",
+      "type": "notNear",
+      "studentIds": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "id": "r3",
+      "type": "isle",
+      "studentId": "s2"
+    }
+  ]
+}

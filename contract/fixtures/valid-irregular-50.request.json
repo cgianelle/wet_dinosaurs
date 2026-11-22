@@ -1,0 +1,663 @@
+{
+  "grid": {
+    "columns": 15,
+    "rows": 15
+  },
+  "frontEdge": "right",
+  "desks": [
+    {
+      "id": "desk0",
+      "column": 12,
+      "row": 13
+    },
+    {
+      "id": "desk1",
+      "column": 9,
+      "row": 9
+    },
+    {
+      "id": "desk2",
+      "column": 9,
+      "row": 5
+    },
+    {
+      "id": "desk3",
+      "column": 4,
+      "row": 12
+    },
+    {
+      "id": "desk4",
+      "column": 1,
+      "row": 1
+    },
+    {
+      "id": "desk5",
+      "column": 3,
+      "row": 13
+    },
+    {
+      "id": "desk6",
+      "column": 14,
+      "row": 13
+    },
+    {
+      "id": "desk7",
+      "column": 5,
+      "row": 14
+    },
+    {
+      "id": "desk8",
+      "column": 1,
+      "row": 2
+    },
+    {
+      "id": "desk9",
+      "column": 13,
+      "row": 14
+    },
+    {
+      "id": "desk10",
+      "column": 10,
+      "row": 3
+    },
+    {
+      "id": "desk11",
+      "column": 5,
+      "row": 6
+    },
+    {
+      "id": "desk12",
+      "column": 5,
+      "row": 4
+    },
+    {
+      "id": "desk13",
+      "column": 5,
+      "row": 3
+    },
+    {
+      "id": "desk14",
+      "column": 13,
+      "row": 5
+    },
+    {
+      "id": "desk15",
+      "column": 4,
+      "row": 6
+    },
+    {
+      "id": "desk16",
+      "column": 0,
+      "row": 14
+    },
+    {
+      "id": "desk17",
+      "column": 14,
+      "row": 3
+    },
+    {
+      "id": "desk18",
+      "column": 11,
+      "row": 6
+    },
+    {
+      "id": "desk19",
+      "column": 13,
+      "row": 8
+    },
+    {
+      "id": "desk20",
+      "column": 12,
+      "row": 8
+    },
+    {
+      "id": "desk21",
+      "column": 0,
+      "row": 3
+    },
+    {
+      "id": "desk22",
+      "column": 3,
+      "row": 5
+    },
+    {
+      "id": "desk23",
+      "column": 7,
+      "row": 10
+    },
+    {
+      "id": "desk24",
+      "column": 8,
+      "row": 13
+    },
+    {
+      "id": "desk25",
+      "column": 6,
+      "row": 13
+    },
+    {
+      "id": "desk26",
+      "column": 1,
+      "row": 14
+    },
+    {
+      "id": "desk27",
+      "column": 5,
+      "row": 12
+    },
+    {
+      "id": "desk28",
+      "column": 10,
+      "row": 9
+    },
+    {
+      "id": "desk29",
+      "column": 8,
+      "row": 8
+    },
+    {
+      "id": "desk30",
+      "column": 11,
+      "row": 8
+    },
+    {
+      "id": "desk31",
+      "column": 9,
+      "row": 7
+    },
+    {
+      "id": "desk32",
+      "column": 3,
+      "row": 8
+    },
+    {
+      "id": "desk33",
+      "column": 1,
+      "row": 8
+    },
+    {
+      "id": "desk34",
+      "column": 12,
+      "row": 11
+    },
+    {
+      "id": "desk35",
+      "column": 8,
+      "row": 0
+    },
+    {
+      "id": "desk36",
+      "column": 13,
+      "row": 2
+    },
+    {
+      "id": "desk37",
+      "column": 14,
+      "row": 8
+    },
+    {
+      "id": "desk38",
+      "column": 11,
+      "row": 7
+    },
+    {
+      "id": "desk39",
+      "column": 5,
+      "row": 1
+    },
+    {
+      "id": "desk40",
+      "column": 11,
+      "row": 14
+    },
+    {
+      "id": "desk41",
+      "column": 14,
+      "row": 9
+    },
+    {
+      "id": "desk42",
+      "column": 7,
+      "row": 2
+    },
+    {
+      "id": "desk43",
+      "column": 11,
+      "row": 12
+    },
+    {
+      "id": "desk44",
+      "column": 14,
+      "row": 7
+    },
+    {
+      "id": "desk45",
+      "column": 11,
+      "row": 3
+    },
+    {
+      "id": "desk46",
+      "column": 2,
+      "row": 6
+    },
+    {
+      "id": "desk47",
+      "column": 9,
+      "row": 2
+    },
+    {
+      "id": "desk48",
+      "column": 10,
+      "row": 4
+    },
+    {
+      "id": "desk49",
+      "column": 0,
+      "row": 9
+    }
+  ],
+  "students": [
+    {
+      "id": "student0"
+    },
+    {
+      "id": "student1"
+    },
+    {
+      "id": "student2"
+    },
+    {
+      "id": "student3"
+    },
+    {
+      "id": "student4"
+    },
+    {
+      "id": "student5"
+    },
+    {
+      "id": "student6"
+    },
+    {
+      "id": "student7"
+    },
+    {
+      "id": "student8"
+    },
+    {
+      "id": "student9"
+    },
+    {
+      "id": "student10"
+    },
+    {
+      "id": "student11"
+    },
+    {
+      "id": "student12"
+    },
+    {
+      "id": "student13"
+    },
+    {
+      "id": "student14"
+    },
+    {
+      "id": "student15"
+    },
+    {
+      "id": "student16"
+    },
+    {
+      "id": "student17"
+    },
+    {
+      "id": "student18"
+    },
+    {
+      "id": "student19"
+    },
+    {
+      "id": "student20"
+    },
+    {
+      "id": "student21"
+    },
+    {
+      "id": "student22"
+    },
+    {
+      "id": "student23"
+    },
+    {
+      "id": "student24"
+    },
+    {
+      "id": "student25"
+    },
+    {
+      "id": "student26"
+    },
+    {
+      "id": "student27"
+    },
+    {
+      "id": "student28"
+    },
+    {
+      "id": "student29"
+    },
+    {
+      "id": "student30"
+    },
+    {
+      "id": "student31"
+    },
+    {
+      "id": "student32"
+    },
+    {
+      "id": "student33"
+    },
+    {
+      "id": "student34"
+    },
+    {
+      "id": "student35"
+    },
+    {
+      "id": "student36"
+    },
+    {
+      "id": "student37"
+    },
+    {
+      "id": "student38"
+    },
+    {
+      "id": "student39"
+    },
+    {
+      "id": "student40"
+    },
+    {
+      "id": "student41"
+    },
+    {
+      "id": "student42"
+    },
+    {
+      "id": "student43"
+    },
+    {
+      "id": "student44"
+    },
+    {
+      "id": "student45"
+    },
+    {
+      "id": "student46"
+    },
+    {
+      "id": "student47"
+    },
+    {
+      "id": "student48"
+    },
+    {
+      "id": "student49"
+    }
+  ],
+  "rules": [
+    {
+      "id": "front0",
+      "type": "front",
+      "studentId": "student0"
+    },
+    {
+      "id": "front1",
+      "type": "front",
+      "studentId": "student1"
+    },
+    {
+      "id": "front2",
+      "type": "front",
+      "studentId": "student2"
+    },
+    {
+      "id": "front3",
+      "type": "front",
+      "studentId": "student3"
+    },
+    {
+      "id": "front4",
+      "type": "front",
+      "studentId": "student4"
+    },
+    {
+      "id": "front5",
+      "type": "front",
+      "studentId": "student5"
+    },
+    {
+      "id": "front6",
+      "type": "front",
+      "studentId": "student6"
+    },
+    {
+      "id": "front7",
+      "type": "front",
+      "studentId": "student7"
+    },
+    {
+      "id": "front8",
+      "type": "front",
+      "studentId": "student8"
+    },
+    {
+      "id": "front9",
+      "type": "front",
+      "studentId": "student9"
+    },
+    {
+      "id": "front10",
+      "type": "front",
+      "studentId": "student10"
+    },
+    {
+      "id": "front11",
+      "type": "front",
+      "studentId": "student11"
+    },
+    {
+      "id": "front12",
+      "type": "front",
+      "studentId": "student12"
+    },
+    {
+      "id": "front13",
+      "type": "front",
+      "studentId": "student13"
+    },
+    {
+      "id": "front14",
+      "type": "front",
+      "studentId": "student14"
+    },
+    {
+      "id": "front15",
+      "type": "front",
+      "studentId": "student15"
+    },
+    {
+      "id": "front16",
+      "type": "front",
+      "studentId": "student16"
+    },
+    {
+      "id": "front17",
+      "type": "front",
+      "studentId": "student17"
+    },
+    {
+      "id": "front18",
+      "type": "front",
+      "studentId": "student18"
+    },
+    {
+      "id": "front19",
+      "type": "front",
+      "studentId": "student19"
+    },
+    {
+      "id": "front20",
+      "type": "front",
+      "studentId": "student20"
+    },
+    {
+      "id": "front21",
+      "type": "front",
+      "studentId": "student21"
+    },
+    {
+      "id": "front22",
+      "type": "front",
+      "studentId": "student22"
+    },
+    {
+      "id": "front23",
+      "type": "front",
+      "studentId": "student23"
+    },
+    {
+      "id": "isle0",
+      "type": "isle",
+      "studentId": "student30"
+    },
+    {
+      "id": "isle1",
+      "type": "isle",
+      "studentId": "student31"
+    },
+    {
+      "id": "isle2",
+      "type": "isle",
+      "studentId": "student32"
+    },
+    {
+      "id": "isle3",
+      "type": "isle",
+      "studentId": "student33"
+    },
+    {
+      "id": "isle4",
+      "type": "isle",
+      "studentId": "student34"
+    },
+    {
+      "id": "isle5",
+      "type": "isle",
+      "studentId": "student35"
+    },
+    {
+      "id": "isle6",
+      "type": "isle",
+      "studentId": "student36"
+    },
+    {
+      "id": "isle7",
+      "type": "isle",
+      "studentId": "student37"
+    },
+    {
+      "id": "isle8",
+      "type": "isle",
+      "studentId": "student38"
+    },
+    {
+      "id": "isle9",
+      "type": "isle",
+      "studentId": "student39"
+    },
+    {
+      "id": "near0",
+      "type": "notNear",
+      "studentIds": [
+        "student0",
+        "student1"
+      ]
+    },
+    {
+      "id": "near1",
+      "type": "notNear",
+      "studentIds": [
+        "student2",
+        "student3"
+      ]
+    },
+    {
+      "id": "near2",
+      "type": "notNear",
+      "studentIds": [
+        "student4",
+        "student5"
+      ]
+    },
+    {
+      "id": "near3",
+      "type": "notNear",
+      "studentIds": [
+        "student6",
+        "student7"
+      ]
+    },
+    {
+      "id": "near4",
+      "type": "notNear",
+      "studentIds": [
+        "student8",
+        "student9"
+      ]
+    },
+    {
+      "id": "near5",
+      "type": "notNear",
+      "studentIds": [
+        "student10",
+        "student11"
+      ]
+    },
+    {
+      "id": "near6",
+      "type": "notNear",
+      "studentIds": [
+        "student12",
+        "student13"
+      ]
+    },
+    {
+      "id": "near7",
+      "type": "notNear",
+      "studentIds": [
+        "student14",
+        "student15"
+      ]
+    },
+    {
+      "id": "near8",
+      "type": "notNear",
+      "studentIds": [
+        "student16",
+        "student17"
+      ]
+    },
+    {
+      "id": "near9",
+      "type": "notNear",
+      "studentIds": [
+        "student18",
+        "student19"
+      ]
+    }
+  ]
+}

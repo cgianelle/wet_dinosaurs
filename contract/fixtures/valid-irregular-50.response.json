@@ -1,0 +1,1678 @@
+{
+  "arrangements": [
+    {
+      "rank": 1,
+      "scores": {
+        "front": 61,
+        "nearBy": 755,
+        "isle": -100,
+        "total": 716,
+        "weighted100": 58184
+      },
+      "rulesMet": 26,
+      "rulesTotal": 44,
+      "assignments": [
+        {
+          "studentId": "student41",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student33",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student32",
+          "deskId": "desk10"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk11"
+        },
+        {
+          "studentId": "student34",
+          "deskId": "desk12"
+        },
+        {
+          "studentId": "student47",
+          "deskId": "desk13"
+        },
+        {
+          "studentId": "student36",
+          "deskId": "desk14"
+        },
+        {
+          "studentId": "student38",
+          "deskId": "desk15"
+        },
+        {
+          "studentId": "student22",
+          "deskId": "desk16"
+        },
+        {
+          "studentId": "student16",
+          "deskId": "desk17"
+        },
+        {
+          "studentId": "student42",
+          "deskId": "desk18"
+        },
+        {
+          "studentId": "student9",
+          "deskId": "desk19"
+        },
+        {
+          "studentId": "student13",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk20"
+        },
+        {
+          "studentId": "student26",
+          "deskId": "desk21"
+        },
+        {
+          "studentId": "student8",
+          "deskId": "desk22"
+        },
+        {
+          "studentId": "student28",
+          "deskId": "desk23"
+        },
+        {
+          "studentId": "student10",
+          "deskId": "desk24"
+        },
+        {
+          "studentId": "student27",
+          "deskId": "desk25"
+        },
+        {
+          "studentId": "student17",
+          "deskId": "desk26"
+        },
+        {
+          "studentId": "student39",
+          "deskId": "desk27"
+        },
+        {
+          "studentId": "student48",
+          "deskId": "desk28"
+        },
+        {
+          "studentId": "student31",
+          "deskId": "desk29"
+        },
+        {
+          "studentId": "student44",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student12",
+          "deskId": "desk30"
+        },
+        {
+          "studentId": "student46",
+          "deskId": "desk31"
+        },
+        {
+          "studentId": "student0",
+          "deskId": "desk32"
+        },
+        {
+          "studentId": "student37",
+          "deskId": "desk33"
+        },
+        {
+          "studentId": "student29",
+          "deskId": "desk34"
+        },
+        {
+          "studentId": "student4",
+          "deskId": "desk35"
+        },
+        {
+          "studentId": "student11",
+          "deskId": "desk36"
+        },
+        {
+          "studentId": "student20",
+          "deskId": "desk37"
+        },
+        {
+          "studentId": "student25",
+          "deskId": "desk38"
+        },
+        {
+          "studentId": "student18",
+          "deskId": "desk39"
+        },
+        {
+          "studentId": "student49",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student15",
+          "deskId": "desk40"
+        },
+        {
+          "studentId": "student21",
+          "deskId": "desk41"
+        },
+        {
+          "studentId": "student43",
+          "deskId": "desk42"
+        },
+        {
+          "studentId": "student45",
+          "deskId": "desk43"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk44"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk45"
+        },
+        {
+          "studentId": "student14",
+          "deskId": "desk46"
+        },
+        {
+          "studentId": "student35",
+          "deskId": "desk47"
+        },
+        {
+          "studentId": "student23",
+          "deskId": "desk48"
+        },
+        {
+          "studentId": "student7",
+          "deskId": "desk49"
+        },
+        {
+          "studentId": "student30",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk6"
+        },
+        {
+          "studentId": "student24",
+          "deskId": "desk7"
+        },
+        {
+          "studentId": "student40",
+          "deskId": "desk8"
+        },
+        {
+          "studentId": "student19",
+          "deskId": "desk9"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front0",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front1",
+          "result": "met",
+          "detail": {
+            "row": 3,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front2",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front3",
+          "result": "notMet",
+          "detail": {
+            "row": 10,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front4",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front5",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front6",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front7",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front8",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front9",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front10",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front11",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front12",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front13",
+          "result": "met",
+          "detail": {
+            "row": 6,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front14",
+          "result": "notMet",
+          "detail": {
+            "row": 13,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front15",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front16",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front17",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front18",
+          "result": "notMet",
+          "detail": {
+            "row": 10,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front19",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front20",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front21",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front22",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front23",
+          "result": "met",
+          "detail": {
+            "row": 5,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "isle0",
+          "result": "notMet",
+          "detail": {
+            "column": 14,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle1",
+          "result": "notMet",
+          "detail": {
+            "column": 9,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle2",
+          "result": "notMet",
+          "detail": {
+            "column": 4,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle3",
+          "result": "notMet",
+          "detail": {
+            "column": 10,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle4",
+          "result": "notMet",
+          "detail": {
+            "column": 5,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle5",
+          "result": "notMet",
+          "detail": {
+            "column": 3,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle6",
+          "result": "notMet",
+          "detail": {
+            "column": 6,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle7",
+          "result": "notMet",
+          "detail": {
+            "column": 9,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle8",
+          "result": "notMet",
+          "detail": {
+            "column": 7,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle9",
+          "result": "notMet",
+          "detail": {
+            "column": 13,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "near0",
+          "result": "met",
+          "detail": {
+            "distance": 9
+          }
+        },
+        {
+          "ruleId": "near1",
+          "result": "met",
+          "detail": {
+            "distance": 16
+          }
+        },
+        {
+          "ruleId": "near2",
+          "result": "met",
+          "detail": {
+            "distance": 13
+          }
+        },
+        {
+          "ruleId": "near3",
+          "result": "met",
+          "detail": {
+            "distance": 17
+          }
+        },
+        {
+          "ruleId": "near4",
+          "result": "met",
+          "detail": {
+            "distance": 13
+          }
+        },
+        {
+          "ruleId": "near5",
+          "result": "met",
+          "detail": {
+            "distance": 16
+          }
+        },
+        {
+          "ruleId": "near6",
+          "result": "met",
+          "detail": {
+            "distance": 5
+          }
+        },
+        {
+          "ruleId": "near7",
+          "result": "met",
+          "detail": {
+            "distance": 17
+          }
+        },
+        {
+          "ruleId": "near8",
+          "result": "met",
+          "detail": {
+            "distance": 24
+          }
+        },
+        {
+          "ruleId": "near9",
+          "result": "met",
+          "detail": {
+            "distance": 21
+          }
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "scores": {
+        "front": 24,
+        "nearBy": 785,
+        "isle": -100,
+        "total": 709,
+        "weighted100": 57666
+      },
+      "rulesMet": 24,
+      "rulesTotal": 44,
+      "assignments": [
+        {
+          "studentId": "student38",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student41",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student23",
+          "deskId": "desk10"
+        },
+        {
+          "studentId": "student48",
+          "deskId": "desk11"
+        },
+        {
+          "studentId": "student36",
+          "deskId": "desk12"
+        },
+        {
+          "studentId": "student25",
+          "deskId": "desk13"
+        },
+        {
+          "studentId": "student46",
+          "deskId": "desk14"
+        },
+        {
+          "studentId": "student44",
+          "deskId": "desk15"
+        },
+        {
+          "studentId": "student7",
+          "deskId": "desk16"
+        },
+        {
+          "studentId": "student33",
+          "deskId": "desk17"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk18"
+        },
+        {
+          "studentId": "student17",
+          "deskId": "desk19"
+        },
+        {
+          "studentId": "student32",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student8",
+          "deskId": "desk20"
+        },
+        {
+          "studentId": "student29",
+          "deskId": "desk21"
+        },
+        {
+          "studentId": "student15",
+          "deskId": "desk22"
+        },
+        {
+          "studentId": "student42",
+          "deskId": "desk23"
+        },
+        {
+          "studentId": "student4",
+          "deskId": "desk24"
+        },
+        {
+          "studentId": "student13",
+          "deskId": "desk25"
+        },
+        {
+          "studentId": "student11",
+          "deskId": "desk26"
+        },
+        {
+          "studentId": "student31",
+          "deskId": "desk27"
+        },
+        {
+          "studentId": "student24",
+          "deskId": "desk28"
+        },
+        {
+          "studentId": "student35",
+          "deskId": "desk29"
+        },
+        {
+          "studentId": "student37",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student40",
+          "deskId": "desk30"
+        },
+        {
+          "studentId": "student30",
+          "deskId": "desk31"
+        },
+        {
+          "studentId": "student21",
+          "deskId": "desk32"
+        },
+        {
+          "studentId": "student16",
+          "deskId": "desk33"
+        },
+        {
+          "studentId": "student39",
+          "deskId": "desk34"
+        },
+        {
+          "studentId": "student19",
+          "deskId": "desk35"
+        },
+        {
+          "studentId": "student0",
+          "deskId": "desk36"
+        },
+        {
+          "studentId": "student26",
+          "deskId": "desk37"
+        },
+        {
+          "studentId": "student20",
+          "deskId": "desk38"
+        },
+        {
+          "studentId": "student34",
+          "deskId": "desk39"
+        },
+        {
+          "studentId": "student9",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student28",
+          "deskId": "desk40"
+        },
+        {
+          "studentId": "student45",
+          "deskId": "desk41"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk42"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk43"
+        },
+        {
+          "studentId": "student18",
+          "deskId": "desk44"
+        },
+        {
+          "studentId": "student10",
+          "deskId": "desk45"
+        },
+        {
+          "studentId": "student43",
+          "deskId": "desk46"
+        },
+        {
+          "studentId": "student12",
+          "deskId": "desk47"
+        },
+        {
+          "studentId": "student22",
+          "deskId": "desk48"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk49"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student14",
+          "deskId": "desk6"
+        },
+        {
+          "studentId": "student49",
+          "deskId": "desk7"
+        },
+        {
+          "studentId": "student27",
+          "deskId": "desk8"
+        },
+        {
+          "studentId": "student47",
+          "deskId": "desk9"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front0",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front1",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front2",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front3",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front4",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front5",
+          "result": "neutral",
+          "detail": {
+            "row": 8,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front6",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front7",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front8",
+          "result": "met",
+          "detail": {
+            "row": 3,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front9",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front10",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front11",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front12",
+          "result": "met",
+          "detail": {
+            "row": 6,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front13",
+          "result": "notMet",
+          "detail": {
+            "row": 9,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front14",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front15",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front16",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front17",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front18",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front19",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front20",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front21",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front22",
+          "result": "met",
+          "detail": {
+            "row": 5,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front23",
+          "result": "met",
+          "detail": {
+            "row": 5,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "isle0",
+          "result": "notMet",
+          "detail": {
+            "column": 8,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle1",
+          "result": "notMet",
+          "detail": {
+            "column": 13,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle2",
+          "result": "notMet",
+          "detail": {
+            "column": 6,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle3",
+          "result": "notMet",
+          "detail": {
+            "column": 4,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle4",
+          "result": "notMet",
+          "detail": {
+            "column": 2,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle5",
+          "result": "notMet",
+          "detail": {
+            "column": 9,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle6",
+          "result": "notMet",
+          "detail": {
+            "column": 5,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle7",
+          "result": "notMet",
+          "detail": {
+            "column": 13,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle8",
+          "result": "notMet",
+          "detail": {
+            "column": 14,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle9",
+          "result": "notMet",
+          "detail": {
+            "column": 12,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "near0",
+          "result": "met",
+          "detail": {
+            "distance": 20
+          }
+        },
+        {
+          "ruleId": "near1",
+          "result": "met",
+          "detail": {
+            "distance": 15
+          }
+        },
+        {
+          "ruleId": "near2",
+          "result": "met",
+          "detail": {
+            "distance": 12
+          }
+        },
+        {
+          "ruleId": "near3",
+          "result": "met",
+          "detail": {
+            "distance": 13
+          }
+        },
+        {
+          "ruleId": "near4",
+          "result": "met",
+          "detail": {
+            "distance": 18
+          }
+        },
+        {
+          "ruleId": "near5",
+          "result": "met",
+          "detail": {
+            "distance": 21
+          }
+        },
+        {
+          "ruleId": "near6",
+          "result": "met",
+          "detail": {
+            "distance": 14
+          }
+        },
+        {
+          "ruleId": "near7",
+          "result": "met",
+          "detail": {
+            "distance": 19
+          }
+        },
+        {
+          "ruleId": "near8",
+          "result": "met",
+          "detail": {
+            "distance": 12
+          }
+        },
+        {
+          "ruleId": "near9",
+          "result": "met",
+          "detail": {
+            "distance": 13
+          }
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "scores": {
+        "front": 26,
+        "nearBy": 775,
+        "isle": -100,
+        "total": 701,
+        "weighted100": 57074
+      },
+      "rulesMet": 24,
+      "rulesTotal": 44,
+      "assignments": [
+        {
+          "studentId": "student15",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student41",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student23",
+          "deskId": "desk10"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk11"
+        },
+        {
+          "studentId": "student36",
+          "deskId": "desk12"
+        },
+        {
+          "studentId": "student45",
+          "deskId": "desk13"
+        },
+        {
+          "studentId": "student46",
+          "deskId": "desk14"
+        },
+        {
+          "studentId": "student39",
+          "deskId": "desk15"
+        },
+        {
+          "studentId": "student28",
+          "deskId": "desk16"
+        },
+        {
+          "studentId": "student33",
+          "deskId": "desk17"
+        },
+        {
+          "studentId": "student8",
+          "deskId": "desk18"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk19"
+        },
+        {
+          "studentId": "student44",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student21",
+          "deskId": "desk20"
+        },
+        {
+          "studentId": "student12",
+          "deskId": "desk21"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk22"
+        },
+        {
+          "studentId": "student29",
+          "deskId": "desk23"
+        },
+        {
+          "studentId": "student13",
+          "deskId": "desk24"
+        },
+        {
+          "studentId": "student38",
+          "deskId": "desk25"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk26"
+        },
+        {
+          "studentId": "student42",
+          "deskId": "desk27"
+        },
+        {
+          "studentId": "student32",
+          "deskId": "desk28"
+        },
+        {
+          "studentId": "student34",
+          "deskId": "desk29"
+        },
+        {
+          "studentId": "student22",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk30"
+        },
+        {
+          "studentId": "student30",
+          "deskId": "desk31"
+        },
+        {
+          "studentId": "student25",
+          "deskId": "desk32"
+        },
+        {
+          "studentId": "student27",
+          "deskId": "desk33"
+        },
+        {
+          "studentId": "student35",
+          "deskId": "desk34"
+        },
+        {
+          "studentId": "student0",
+          "deskId": "desk35"
+        },
+        {
+          "studentId": "student47",
+          "deskId": "desk36"
+        },
+        {
+          "studentId": "student10",
+          "deskId": "desk37"
+        },
+        {
+          "studentId": "student4",
+          "deskId": "desk38"
+        },
+        {
+          "studentId": "student14",
+          "deskId": "desk39"
+        },
+        {
+          "studentId": "student19",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student18",
+          "deskId": "desk40"
+        },
+        {
+          "studentId": "student31",
+          "deskId": "desk41"
+        },
+        {
+          "studentId": "student7",
+          "deskId": "desk42"
+        },
+        {
+          "studentId": "student40",
+          "deskId": "desk43"
+        },
+        {
+          "studentId": "student48",
+          "deskId": "desk44"
+        },
+        {
+          "studentId": "student20",
+          "deskId": "desk45"
+        },
+        {
+          "studentId": "student11",
+          "deskId": "desk46"
+        },
+        {
+          "studentId": "student17",
+          "deskId": "desk47"
+        },
+        {
+          "studentId": "student49",
+          "deskId": "desk48"
+        },
+        {
+          "studentId": "student9",
+          "deskId": "desk49"
+        },
+        {
+          "studentId": "student43",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student26",
+          "deskId": "desk6"
+        },
+        {
+          "studentId": "student24",
+          "deskId": "desk7"
+        },
+        {
+          "studentId": "student37",
+          "deskId": "desk8"
+        },
+        {
+          "studentId": "student16",
+          "deskId": "desk9"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front0",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front1",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front2",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front3",
+          "result": "notMet",
+          "detail": {
+            "row": 10,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front4",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front5",
+          "result": "notMet",
+          "detail": {
+            "row": 12,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front6",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front7",
+          "result": "neutral",
+          "detail": {
+            "row": 8,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front8",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front9",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front10",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front11",
+          "result": "notMet",
+          "detail": {
+            "row": 13,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front12",
+          "result": "notMet",
+          "detail": {
+            "row": 15,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front13",
+          "result": "met",
+          "detail": {
+            "row": 7,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front14",
+          "result": "notMet",
+          "detail": {
+            "row": 10,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front15",
+          "result": "met",
+          "detail": {
+            "row": 3,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front16",
+          "result": "met",
+          "detail": {
+            "row": 2,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front17",
+          "result": "met",
+          "detail": {
+            "row": 6,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front18",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front19",
+          "result": "notMet",
+          "detail": {
+            "row": 14,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front20",
+          "result": "met",
+          "detail": {
+            "row": 4,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front21",
+          "result": "met",
+          "detail": {
+            "row": 3,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front22",
+          "result": "notMet",
+          "detail": {
+            "row": 11,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "front23",
+          "result": "met",
+          "detail": {
+            "row": 5,
+            "rows": 15
+          }
+        },
+        {
+          "ruleId": "isle0",
+          "result": "notMet",
+          "detail": {
+            "column": 8,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle1",
+          "result": "notMet",
+          "detail": {
+            "column": 10,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle2",
+          "result": "notMet",
+          "detail": {
+            "column": 10,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle3",
+          "result": "notMet",
+          "detail": {
+            "column": 4,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle4",
+          "result": "notMet",
+          "detail": {
+            "column": 9,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle5",
+          "result": "notMet",
+          "detail": {
+            "column": 12,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle6",
+          "result": "notMet",
+          "detail": {
+            "column": 5,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle7",
+          "result": "notMet",
+          "detail": {
+            "column": 3,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle8",
+          "result": "notMet",
+          "detail": {
+            "column": 14,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "isle9",
+          "result": "notMet",
+          "detail": {
+            "column": 7,
+            "columns": 15
+          }
+        },
+        {
+          "ruleId": "near0",
+          "result": "met",
+          "detail": {
+            "distance": 21
+          }
+        },
+        {
+          "ruleId": "near1",
+          "result": "met",
+          "detail": {
+            "distance": 8
+          }
+        },
+        {
+          "ruleId": "near2",
+          "result": "met",
+          "detail": {
+            "distance": 10
+          }
+        },
+        {
+          "ruleId": "near3",
+          "result": "met",
+          "detail": {
+            "distance": 12
+          }
+        },
+        {
+          "ruleId": "near4",
+          "result": "met",
+          "detail": {
+            "distance": 14
+          }
+        },
+        {
+          "ruleId": "near5",
+          "result": "met",
+          "detail": {
+            "distance": 14
+          }
+        },
+        {
+          "ruleId": "near6",
+          "result": "met",
+          "detail": {
+            "distance": 18
+          }
+        },
+        {
+          "ruleId": "near7",
+          "result": "met",
+          "detail": {
+            "distance": 19
+          }
+        },
+        {
+          "ruleId": "near8",
+          "result": "met",
+          "detail": {
+            "distance": 16
+          }
+        },
+        {
+          "ruleId": "near9",
+          "result": "met",
+          "detail": {
+            "distance": 23
+          }
+        }
+      ]
+    }
+  ]
+}

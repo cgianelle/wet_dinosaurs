@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "duplicate_rule",
+    "field": "rules[3]"
+  }
+}

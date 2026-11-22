@@ -1,0 +1,98 @@
+{
+  "arrangements": [
+    {
+      "rank": 1,
+      "scores": {
+        "front": 10,
+        "nearBy": -5,
+        "isle": 10,
+        "total": 15,
+        "weighted100": 590
+      },
+      "rulesMet": 2,
+      "rulesTotal": 3,
+      "assignments": [
+        {
+          "studentId": "s1",
+          "deskId": "d1"
+        },
+        {
+          "studentId": "s2",
+          "deskId": "d2"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "r1",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 1
+          }
+        },
+        {
+          "ruleId": "r2",
+          "result": "notMet",
+          "detail": {
+            "distance": 1
+          }
+        },
+        {
+          "ruleId": "r3",
+          "result": "met",
+          "detail": {
+            "column": 2,
+            "columns": 2
+          }
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "scores": {
+        "front": 10,
+        "nearBy": -5,
+        "isle": 10,
+        "total": 15,
+        "weighted100": 590
+      },
+      "rulesMet": 2,
+      "rulesTotal": 3,
+      "assignments": [
+        {
+          "studentId": "s2",
+          "deskId": "d1"
+        },
+        {
+          "studentId": "s1",
+          "deskId": "d2"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "r1",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 1
+          }
+        },
+        {
+          "ruleId": "r2",
+          "result": "notMet",
+          "detail": {
+            "distance": 1
+          }
+        },
+        {
+          "ruleId": "r3",
+          "result": "met",
+          "detail": {
+            "column": 1,
+            "columns": 2
+          }
+        }
+      ]
+    }
+  ]
+}

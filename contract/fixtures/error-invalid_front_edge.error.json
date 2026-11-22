@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "invalid_front_edge",
+    "field": "frontEdge"
+  }
+}

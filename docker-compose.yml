@@ -1,0 +1,109 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  # Production-like: one Go binary serving /v1/solve and the built SPA, same origin.
+  app:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: dsseating-app
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Development: Go API plus Vite dev server; the browser only talks to Vite (one origin).
+  api:
+    profiles: [dev]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "${API_PORT:-8080}:8080"
+    volumes:
+      - ./:/src
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    develop:
+      watch:
+        - action: restart
+          path: ./solver
+        - action: restart
+          path: ./internal/api
+        - action: restart
+          path: ./cmd/dsseating-server
+        - action: restart
+          path: ./seating
+
+  web:
+    profiles: [dev]
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      target: dev
+    environment:
+      API_URL: http://api:8080
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      - ./web:/app/web
+      - ./contract:/app/contract:ro
+      - /app/web/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    develop:
+      watch:
+        - action: rebuild
+          path: ./web/package-lock.json
+        - action: sync
+          path: ./web/src
+          target: /app/web/src
+
+  # Gates: the exit code is the result.
+  go-test:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    pull_policy: build
+    logging: *logging
+
+  web-test:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      target: test
+    pull_policy: build
+    logging: *logging

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "unknown_student",
+    "field": "rules[0]"
+  }
+}

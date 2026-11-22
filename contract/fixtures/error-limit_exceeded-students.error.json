@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "limit_exceeded",
+    "field": "students",
+    "limit": 50
+  }
+}

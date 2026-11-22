@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "self_pair",
+    "field": "rules[1]"
+  }
+}

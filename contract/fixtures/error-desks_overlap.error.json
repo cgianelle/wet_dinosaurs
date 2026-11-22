@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "desks_overlap",
+    "field": "desks[1]"
+  }
+}

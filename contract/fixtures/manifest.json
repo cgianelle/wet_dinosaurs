@@ -1,0 +1,115 @@
+{
+  "cases": [
+    {
+      "name": "valid-minimal",
+      "status": 200,
+      "request": "valid-minimal.request.json",
+      "response": "valid-minimal.response.json"
+    },
+    {
+      "name": "valid-irregular-50",
+      "status": 200,
+      "request": "valid-irregular-50.request.json",
+      "response": "valid-irregular-50.response.json"
+    },
+    {
+      "name": "error-malformed_request",
+      "status": 400,
+      "request": "error-malformed_request.request.json",
+      "error": "error-malformed_request.error.json"
+    },
+    {
+      "name": "error-limit_exceeded-grid-columns",
+      "status": 400,
+      "request": "error-limit_exceeded-grid-columns.request.json",
+      "error": "error-limit_exceeded-grid-columns.error.json"
+    },
+    {
+      "name": "error-limit_exceeded-grid-rows",
+      "status": 400,
+      "request": "error-limit_exceeded-grid-rows.request.json",
+      "error": "error-limit_exceeded-grid-rows.error.json"
+    },
+    {
+      "name": "error-limit_exceeded-desks",
+      "status": 400,
+      "request": "error-limit_exceeded-desks.request.json",
+      "error": "error-limit_exceeded-desks.error.json"
+    },
+    {
+      "name": "error-limit_exceeded-students",
+      "status": 400,
+      "request": "error-limit_exceeded-students.request.json",
+      "error": "error-limit_exceeded-students.error.json"
+    },
+    {
+      "name": "error-count_mismatch",
+      "status": 400,
+      "request": "error-count_mismatch.request.json",
+      "error": "error-count_mismatch.error.json"
+    },
+    {
+      "name": "error-no_students",
+      "status": 400,
+      "request": "error-no_students.request.json",
+      "error": "error-no_students.error.json"
+    },
+    {
+      "name": "error-invalid_front_edge",
+      "status": 400,
+      "request": "error-invalid_front_edge.request.json",
+      "error": "error-invalid_front_edge.error.json"
+    },
+    {
+      "name": "error-desks_overlap",
+      "status": 400,
+      "request": "error-desks_overlap.request.json",
+      "error": "error-desks_overlap.error.json"
+    },
+    {
+      "name": "error-desk_out_of_grid",
+      "status": 400,
+      "request": "error-desk_out_of_grid.request.json",
+      "error": "error-desk_out_of_grid.error.json"
+    },
+    {
+      "name": "error-duplicate_id",
+      "status": 400,
+      "request": "error-duplicate_id.request.json",
+      "error": "error-duplicate_id.error.json"
+    },
+    {
+      "name": "error-unknown_student",
+      "status": 400,
+      "request": "error-unknown_student.request.json",
+      "error": "error-unknown_student.error.json"
+    },
+    {
+      "name": "error-duplicate_rule",
+      "status": 400,
+      "request": "error-duplicate_rule.request.json",
+      "error": "error-duplicate_rule.error.json"
+    },
+    {
+      "name": "error-self_pair",
+      "status": 400,
+      "request": "error-self_pair.request.json",
+      "error": "error-self_pair.error.json"
+    },
+    {
+      "name": "error-busy",
+      "status": 503,
+      "error": "error-busy.error.json"
+    },
+    {
+      "name": "error-timeout",
+      "status": 504,
+      "error": "error-timeout.error.json"
+    },
+    {
+      "name": "error-internal",
+      "status": 500,
+      "error": "error-internal.error.json"
+    }
+  ]
+}

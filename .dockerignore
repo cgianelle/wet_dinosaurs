@@ -1,0 +1,8 @@
+.git
+.DS_Store
+docs/
+out/
+/dsseating
+web/node_modules
+web/dist
+**/node_modules

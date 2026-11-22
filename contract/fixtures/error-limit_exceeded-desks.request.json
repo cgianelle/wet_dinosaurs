@@ -1,0 +1,292 @@
+{
+  "grid": {
+    "columns": 15,
+    "rows": 15
+  },
+  "frontEdge": "top",
+  "desks": [
+    {
+      "id": "d0",
+      "column": 0,
+      "row": 0
+    },
+    {
+      "id": "d1",
+      "column": 1,
+      "row": 0
+    },
+    {
+      "id": "d2",
+      "column": 2,
+      "row": 0
+    },
+    {
+      "id": "d3",
+      "column": 3,
+      "row": 0
+    },
+    {
+      "id": "d4",
+      "column": 4,
+      "row": 0
+    },
+    {
+      "id": "d5",
+      "column": 5,
+      "row": 0
+    },
+    {
+      "id": "d6",
+      "column": 6,
+      "row": 0
+    },
+    {
+      "id": "d7",
+      "column": 7,
+      "row": 0
+    },
+    {
+      "id": "d8",
+      "column": 8,
+      "row": 0
+    },
+    {
+      "id": "d9",
+      "column": 9,
+      "row": 0
+    },
+    {
+      "id": "d10",
+      "column": 10,
+      "row": 0
+    },
+    {
+      "id": "d11",
+      "column": 11,
+      "row": 0
+    },
+    {
+      "id": "d12",
+      "column": 12,
+      "row": 0
+    },
+    {
+      "id": "d13",
+      "column": 13,
+      "row": 0
+    },
+    {
+      "id": "d14",
+      "column": 14,
+      "row": 0
+    },
+    {
+      "id": "d15",
+      "column": 0,
+      "row": 1
+    },
+    {
+      "id": "d16",
+      "column": 1,
+      "row": 1
+    },
+    {
+      "id": "d17",
+      "column": 2,
+      "row": 1
+    },
+    {
+      "id": "d18",
+      "column": 3,
+      "row": 1
+    },
+    {
+      "id": "d19",
+      "column": 4,
+      "row": 1
+    },
+    {
+      "id": "d20",
+      "column": 5,
+      "row": 1
+    },
+    {
+      "id": "d21",
+      "column": 6,
+      "row": 1
+    },
+    {
+      "id": "d22",
+      "column": 7,
+      "row": 1
+    },
+    {
+      "id": "d23",
+      "column": 8,
+      "row": 1
+    },
+    {
+      "id": "d24",
+      "column": 9,
+      "row": 1
+    },
+    {
+      "id": "d25",
+      "column": 10,
+      "row": 1
+    },
+    {
+      "id": "d26",
+      "column": 11,
+      "row": 1
+    },
+    {
+      "id": "d27",
+      "column": 12,
+      "row": 1
+    },
+    {
+      "id": "d28",
+      "column": 13,
+      "row": 1
+    },
+    {
+      "id": "d29",
+      "column": 14,
+      "row": 1
+    },
+    {
+      "id": "d30",
+      "column": 0,
+      "row": 2
+    },
+    {
+      "id": "d31",
+      "column": 1,
+      "row": 2
+    },
+    {
+      "id": "d32",
+      "column": 2,
+      "row": 2
+    },
+    {
+      "id": "d33",
+      "column": 3,
+      "row": 2
+    },
+    {
+      "id": "d34",
+      "column": 4,
+      "row": 2
+    },
+    {
+      "id": "d35",
+      "column": 5,
+      "row": 2
+    },
+    {
+      "id": "d36",
+      "column": 6,
+      "row": 2
+    },
+    {
+      "id": "d37",
+      "column": 7,
+      "row": 2
+    },
+    {
+      "id": "d38",
+      "column": 8,
+      "row": 2
+    },
+    {
+      "id": "d39",
+      "column": 9,
+      "row": 2
+    },
+    {
+      "id": "d40",
+      "column": 10,
+      "row": 2
+    },
+    {
+      "id": "d41",
+      "column": 11,
+      "row": 2
+    },
+    {
+      "id": "d42",
+      "column": 12,
+      "row": 2
+    },
+    {
+      "id": "d43",
+      "column": 13,
+      "row": 2
+    },
+    {
+      "id": "d44",
+      "column": 14,
+      "row": 2
+    },
+    {
+      "id": "d45",
+      "column": 0,
+      "row": 3
+    },
+    {
+      "id": "d46",
+      "column": 1,
+      "row": 3
+    },
+    {
+      "id": "d47",
+      "column": 2,
+      "row": 3
+    },
+    {
+      "id": "d48",
+      "column": 3,
+      "row": 3
+    },
+    {
+      "id": "d49",
+      "column": 4,
+      "row": 3
+    },
+    {
+      "id": "d50",
+      "column": 5,
+      "row": 3
+    }
+  ],
+  "students": [
+    {
+      "id": "s1"
+    },
+    {
+      "id": "s2"
+    }
+  ],
+  "rules": [
+    {
+      "id": "r1",
+      "type": "front",
+      "studentId": "s1"
+    },
+    {
+      "id": "r2",
+      "type": "notNear",
+      "studentIds": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "id": "r3",
+      "type": "isle",
+      "studentId": "s2"
+    }
+  ]
+}
