@@ -4,7 +4,7 @@ import { MAX_COLUMNS, MAX_DESKS, MAX_ROWS, limitMessage } from '../model/limits'
 import type { Classroom } from '../model/types'
 import { useApp } from './AppContext'
 import { ConfirmDialog } from './dialogs'
-import { MARKER_LABELS, plural } from './text'
+import { WALL_CHOICES, plural } from './text'
 
 function SizeField(props: { label: string; value: number; max: number; disabled: boolean; onCommit: (value: number) => void }) {
   const [draft, setDraft] = useState<string | null>(null)
@@ -38,6 +38,33 @@ function SizeField(props: { label: string; value: number; max: number; disabled:
   )
 }
 
+const joinParts = (parts: readonly string[]): string =>
+  parts.length < 2 ? (parts[0] ?? '') : `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}`
+
+function FrontWallControl({ classroom }: { classroom: Classroom }) {
+  const app = useApp()
+  return (
+    <fieldset className="front-wall-control" disabled={app.locked}>
+      <legend>Front wall (where your board is)</legend>
+      <div className="choices">
+        {WALL_CHOICES.map(({ wall, label }) => (
+          <label key={wall} className={classroom.frontWall === wall ? 'is-checked' : ''}>
+            <input
+              type="radio"
+              name="front-wall"
+              value={wall}
+              checked={classroom.frontWall === wall}
+              onChange={() => app.dispatchCommand({ type: 'setFrontWall', wall })}
+            />
+            {label}
+          </label>
+        ))}
+      </div>
+      <p className="hint">Rules count rows from the front wall.</p>
+    </fieldset>
+  )
+}
+
 export function RoomSizeBar({ classroom }: { classroom: Classroom }) {
   const app = useApp()
   const { columns, rows } = classroom.grid
@@ -54,7 +81,7 @@ export function RoomSizeBar({ classroom }: { classroom: Classroom }) {
     )
     if (clamped.columns === columns && clamped.rows === rows) return
     const lost = resizeLoss(classroom, clamped.columns, clamped.rows)
-    if (lost.desks.length > 0 || lost.markers.length > 0) setPending(clamped)
+    if (lost.desks.length > 0 || lost.teacherDesk || lost.doors.length > 0) setPending(clamped)
     else app.dispatchCommand({ type: 'resizeGrid', ...clamped })
   }
 
@@ -62,7 +89,8 @@ export function RoomSizeBar({ classroom }: { classroom: Classroom }) {
   const lostParts = lost
     ? [
         lost.desks.length > 0 ? plural(lost.desks.length, 'desk') : '',
-        ...lost.markers.map((m) => `the ${MARKER_LABELS[m.kind]} marker`),
+        lost.teacherDesk ? "the teacher's desk" : '',
+        lost.doors.length > 0 ? plural(lost.doors.length, 'door') : '',
       ].filter(Boolean)
     : []
 
@@ -70,12 +98,13 @@ export function RoomSizeBar({ classroom }: { classroom: Classroom }) {
     <div className="size-bar">
       <SizeField label="Columns" value={columns} max={MAX_COLUMNS} disabled={app.locked} onCommit={(v) => resize({ columns: v, rows })} />
       <SizeField label="Rows" value={rows} max={MAX_ROWS} disabled={app.locked} onCommit={(v) => resize({ columns, rows: v })} />
+      <FrontWallControl classroom={classroom} />
       <p className="desk-count">{`${classroom.desks.length} of ${MAX_DESKS} desks`}</p>
       {clampNote && <p className="problem" role="status">{clampNote}</p>}
       {pending && (
         <ConfirmDialog
           title="Shrink room?"
-          message={`Making the room ${pending.columns} by ${pending.rows} deletes ${lostParts.join(' and ')}. You can undo this.`}
+          message={`Making the room ${pending.columns} by ${pending.rows} deletes ${joinParts(lostParts)}. You can undo this.`}
           confirmLabel="Shrink room"
           onCancel={() => setPending(null)}
           onConfirm={() => {

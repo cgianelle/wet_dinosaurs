@@ -1,5 +1,3 @@
-import type { MarkerKind } from './types'
-
 // One place for every limit the client enforces. The service holds the same numbers
 // (solver/limits.go); a fixture test asserts they agree (AD-5).
 export const MAX_COLUMNS = 15
@@ -10,13 +8,8 @@ export const MAX_NAME_LENGTH = 40
 export const DEFAULT_GRID = { columns: 8, rows: 6 } as const
 export const MAX_UNDO_STEPS = 100
 
-export const MARKER_LIMITS: Readonly<Record<MarkerKind, number>> = {
-  front: 1,
-  back: 1,
-  side: 2,
-  door: 3,
-  teacherDesk: 1,
-}
+export const MAX_DOORS = 3
+export const MAX_TEACHER_DESKS = 1
 
 /** The `field` values a `limit_exceeded` error can carry. */
 export type LimitField = 'grid.columns' | 'grid.rows' | 'desks' | 'students'

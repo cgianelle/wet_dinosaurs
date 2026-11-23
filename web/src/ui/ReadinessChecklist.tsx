@@ -2,7 +2,7 @@ import { runBlockers, type Blocker } from '../model/blockers'
 import type { Classroom } from '../model/types'
 import { blockerText, plural } from './text'
 
-export type FixTarget = 'students' | 'rules' | 'canvas'
+export type FixTarget = 'students' | 'rules'
 
 interface Line {
   readonly ok: boolean
@@ -15,7 +15,6 @@ export function checklistLines(classroom: Classroom): Line[] {
   const find = <K extends Blocker['kind']>(kind: K) => blockers.find((b) => b.kind === kind)
   const mismatch = find('countMismatch')
   const ruleProblems = blockers.filter((b) => b.kind === 'ruleError').length
-  const front = find('noFrontMarker') ?? find('frontMarkerNotOnEdge')
   const students = classroom.students.length
   const desks = classroom.desks.length
   return [
@@ -25,7 +24,6 @@ export function checklistLines(classroom: Classroom): Line[] {
       target: 'students',
     },
     { ok: !find('noStudents'), text: find('noStudents') ? 'Add at least 1 student.' : 'At least 1 student.', target: 'students' },
-    { ok: !front, text: front ? blockerText(front) : 'Front of room is marked.', target: 'canvas' },
     {
       ok: ruleProblems === 0,
       text: ruleProblems === 0 ? 'Rules are valid.' : `${plural(ruleProblems, 'rule')} ${ruleProblems === 1 ? 'needs' : 'need'} attention.`,

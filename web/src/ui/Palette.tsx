@@ -1,13 +1,10 @@
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { useState } from 'react'
-import { hasValidFrontCell } from '../model/geometry'
-import { MARKER_LIMITS, MAX_DESKS, limitMessage } from '../model/limits'
-import { markerCount } from '../model/classroom'
-import { MARKER_KINDS, type Classroom, type MarkerKind } from '../model/types'
+import { MAX_DESKS, MAX_DOORS, MAX_TEACHER_DESKS, limitMessage } from '../model/limits'
+import type { Classroom } from '../model/types'
 import { useApp } from './AppContext'
 import { ConfirmDialog, FillRoomDialog } from './dialogs'
-import { MARKER_LABELS } from './text'
-import type { Tool } from './RoomCanvas'
+import type { Tool } from './canvasCommands'
 
 interface ToolButtonProps {
   readonly tool: Tool
@@ -16,10 +13,9 @@ interface ToolButtonProps {
   readonly unavailable: string | null
   readonly active: boolean
   readonly onToggle: (tool: Tool) => void
-  readonly required?: boolean
 }
 
-function ToolButton({ tool, label, detail, unavailable, active, onToggle, required }: ToolButtonProps) {
+function ToolButton({ tool, label, detail, unavailable, active, onToggle }: ToolButtonProps) {
   const app = useApp()
   const disabled = unavailable !== null || app.locked
   const { setNodeRef, listeners } = useDraggable({ id: `tool:${tool}`, disabled })
@@ -37,7 +33,6 @@ function ToolButton({ tool, label, detail, unavailable, active, onToggle, requir
         {...listeners}
       >
         <span>{label}</span>
-        {required && <span className="required">Required</span>}
         {detail && <span className="detail">{detail}</span>}
       </button>
       {unavailable && (
@@ -57,13 +52,10 @@ export function Palette(props: { classroom: Classroom; tool: Tool | null; onTool
   const { setNodeRef, isOver } = useDroppable({ id: 'palette' })
   const toggle = (next: Tool) => onTool(tool === next ? null : next)
   const full = classroom.desks.length >= MAX_DESKS
-  const hasContent = classroom.desks.length + classroom.markers.length + classroom.students.length + classroom.rules.length > 0
-  const markerReason = (kind: MarkerKind): string | null => {
-    if (kind === 'front' && !hasValidFrontCell(classroom.grid)) {
-      return 'This room has no valid spot for the Front marker. Make it at least 3 wide or 3 tall.'
-    }
-    return markerCount(classroom, kind) >= MARKER_LIMITS[kind] && kind !== 'front' ? 'Already placed. Move or remove it.' : null
-  }
+  const placedTeacherDesks = classroom.teacherDesk ? 1 : 0
+  const hasContent =
+    classroom.desks.length + classroom.doors.length + placedTeacherDesks + classroom.students.length + classroom.rules.length > 0
+  const ALREADY_PLACED = 'Already placed. Move or remove it.'
 
   return (
     <aside ref={setNodeRef} className={`palette${isOver ? ' is-over' : ''}`} aria-label="Room tools">
@@ -76,22 +68,26 @@ export function Palette(props: { classroom: Classroom; tool: Tool | null; onTool
           </button>
         </li>
       </ul>
-      <h2>Room markers</h2>
+      <h2>Room features</h2>
       <ul className="tools">
-        {MARKER_KINDS.map((kind) => (
-          <ToolButton
-            key={kind}
-            tool={kind}
-            label={MARKER_LABELS[kind]}
-            required={kind === 'front'}
-            detail={`${markerCount(classroom, kind)} of ${MARKER_LIMITS[kind]}`}
-            unavailable={markerReason(kind)}
-            active={tool === kind}
-            onToggle={toggle}
-          />
-        ))}
+        <ToolButton
+          tool="door"
+          label="Door"
+          detail={`${classroom.doors.length} of ${MAX_DOORS}`}
+          unavailable={classroom.doors.length >= MAX_DOORS ? ALREADY_PLACED : null}
+          active={tool === 'door'}
+          onToggle={toggle}
+        />
+        <ToolButton
+          tool="teacherDesk"
+          label="Teacher's desk"
+          detail={`${placedTeacherDesks} of ${MAX_TEACHER_DESKS}`}
+          unavailable={placedTeacherDesks >= MAX_TEACHER_DESKS ? ALREADY_PLACED : null}
+          active={tool === 'teacherDesk'}
+          onToggle={toggle}
+        />
       </ul>
-      <p className="hint">Drag a tool onto the grid, or select it and click a cell. Drag an item here to remove it.</p>
+      <p className="hint">Drag a tool onto the grid or a wall, or select it and click a cell or wall. Drag an item here to remove it. Walls are always there; click one to choose the front.</p>
       {hasContent && (
         <button type="button" className="quiet" disabled={app.locked} onClick={() => setConfirmingStartOver(true)}>
           Start over

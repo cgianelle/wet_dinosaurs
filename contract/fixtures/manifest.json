@@ -13,6 +13,30 @@
       "response": "valid-irregular-50.response.json"
     },
     {
+      "name": "valid-gapped-top",
+      "status": 200,
+      "request": "valid-gapped-top.request.json",
+      "response": "valid-gapped-top.response.json"
+    },
+    {
+      "name": "valid-gapped-bottom",
+      "status": 200,
+      "request": "valid-gapped-bottom.request.json",
+      "response": "valid-gapped-bottom.response.json"
+    },
+    {
+      "name": "valid-gapped-left",
+      "status": 200,
+      "request": "valid-gapped-left.request.json",
+      "response": "valid-gapped-left.response.json"
+    },
+    {
+      "name": "valid-gapped-right",
+      "status": 200,
+      "request": "valid-gapped-right.request.json",
+      "response": "valid-gapped-right.response.json"
+    },
+    {
       "name": "error-malformed_request",
       "status": 400,
       "request": "error-malformed_request.request.json",

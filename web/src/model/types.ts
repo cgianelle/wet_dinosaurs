@@ -10,20 +10,32 @@ export interface Grid {
   readonly rows: number
 }
 
-export type Edge = 'top' | 'bottom' | 'left' | 'right'
+/** One of the four wall bands around the grid. The front wall is the wire's `frontEdge`. */
+export type Wall = 'top' | 'bottom' | 'left' | 'right'
+export const WALLS: readonly Wall[] = ['top', 'bottom', 'left', 'right']
 
-export const MARKER_KINDS = ['front', 'back', 'side', 'door', 'teacherDesk'] as const
-export type MarkerKind = (typeof MARKER_KINDS)[number]
+/** What a wall is called, derived from the front wall (never stored). */
+export type WallRole = 'front' | 'back' | 'side'
 
 export interface Desk {
   readonly id: string
   readonly cell: Cell
 }
 
-export interface Marker {
+/** The teacher's desk: a student-less, uncounted, visual-only cell in the grid (FR-5). */
+export interface TeacherDesk {
   readonly id: string
-  readonly kind: MarkerKind
   readonly cell: Cell
+}
+
+/**
+ * An opening in a wall band, aligned with one cell: `index` is the 0-based column for the top and
+ * bottom walls and the 0-based row for the left and right walls. A door is never a grid cell.
+ */
+export interface Door {
+  readonly id: string
+  readonly wall: Wall
+  readonly index: number
 }
 
 export interface Student {
@@ -54,8 +66,11 @@ export type RuleType = Rule['type']
 
 export interface Classroom {
   readonly grid: Grid
+  /** Always set; defaults to top (FR-6). */
+  readonly frontWall: Wall
   readonly desks: readonly Desk[]
-  readonly markers: readonly Marker[]
+  readonly teacherDesk: TeacherDesk | null
+  readonly doors: readonly Door[]
   readonly students: readonly Student[]
   readonly rules: readonly Rule[]
 }

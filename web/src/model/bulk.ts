@@ -17,8 +17,8 @@ export type FillPreview =
       readonly cells: readonly Cell[]
       /** Cells that already hold a desk. */
       readonly replaced: number
-      /** Cells skipped because a marker is there. */
-      readonly skippedMarkers: number
+      /** True when the teacher's desk sits in the block: its cell is skipped, never overwritten. */
+      readonly skippedTeacherDesk: boolean
       readonly totalDesks: number
     }
   | { readonly ok: false; readonly problem: 'doesNotFit' | 'deskLimit' | 'invalid'; readonly totalDesks: number }
@@ -34,14 +34,14 @@ export function previewFill(c: Classroom, request: FillRequest): FillPreview {
   if (width > c.grid.columns || rows > c.grid.rows) return { ok: false, problem: 'doesNotFit', totalDesks: c.desks.length }
   const aisleColumn = Math.floor(columns / 2)
   const cells: Cell[] = []
-  let skippedMarkers = 0
+  let skippedTeacherDesk = false
   let replaced = 0
   for (let row = 0; row < rows; row++) {
     for (let k = 0; k < width; k++) {
       if (useAisle && k === aisleColumn) continue
       const cell = { column: k, row }
       const occupant = occupantOf(c, cell)
-      if (occupant && occupant.kind !== 'desk') skippedMarkers++
+      if (occupant && occupant.kind === 'teacherDesk') skippedTeacherDesk = true
       else {
         cells.push(cell)
         if (occupant) replaced++
@@ -51,7 +51,7 @@ export function previewFill(c: Classroom, request: FillRequest): FillPreview {
   const totalDesks = c.desks.length + cells.length - replaced
   if (totalDesks > MAX_DESKS) return { ok: false, problem: 'deskLimit', totalDesks }
   if (!cells.every((cell) => inGrid(c.grid, cell))) return { ok: false, problem: 'doesNotFit', totalDesks }
-  return { ok: true, cells, replaced, skippedMarkers, totalDesks }
+  return { ok: true, cells, replaced, skippedTeacherDesk, totalDesks }
 }
 
 export interface PastePreview {

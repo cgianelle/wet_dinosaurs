@@ -69,7 +69,7 @@ export function FillRoomDialog({ classroom, onClose }: { classroom: Classroom; o
   if (preview.ok) {
     status = `This places ${plural(preview.cells.length, 'desk')}.`
     if (preview.replaced > 0) status += ` This replaces ${plural(preview.replaced, 'existing desk')}.`
-    if (preview.skippedMarkers > 0) status += ` ${plural(preview.skippedMarkers, 'cell')} with a marker will be skipped.`
+    if (preview.skippedTeacherDesk) status += " The teacher's desk cell is skipped."
   } else if (preview.problem === 'deskLimit') {
     status = `That would be ${preview.totalDesks} desks. Room is full at ${MAX_DESKS} desks. Reduce columns or rows.`
   } else if (preview.problem === 'doesNotFit') {

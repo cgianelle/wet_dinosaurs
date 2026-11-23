@@ -19,6 +19,8 @@ export interface AppApi {
   readonly dismissRunProblem: () => void
   readonly setMode: (mode: Mode) => void
   readonly announce: (message: string) => void
+  /** Shows a message as the caption under the canvas and announces it. */
+  readonly notify: (message: string) => void
 }
 
 const AppContext = createContext<AppApi | null>(null)
@@ -42,6 +44,14 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     setAnnouncement((previous) => (previous === message ? `${message}\u00A0` : message))
   }, [])
 
+  const notify = useCallback(
+    (message: string) => {
+      setCaption(message)
+      announce(message)
+    },
+    [announce],
+  )
+
   useEffect(() => {
     const { feedback, present } = state.editor
     if (!feedback) return
@@ -60,7 +70,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   }, [state.notice, state.editor.results])
 
   const room = state.editor.present
-  const hasContent = room.desks.length + room.markers.length + room.students.length > 0
+  const hasContent = room.desks.length + room.doors.length + (room.teacherDesk ? 1 : 0) + room.students.length > 0
   useEffect(() => {
     if (!hasContent) return
     const warn = (event: BeforeUnloadEvent) => {
@@ -98,8 +108,9 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       dismissRunProblem: () => dispatch({ type: 'dismissRunProblem' }),
       setMode: (mode) => dispatch({ type: 'setMode', mode }),
       announce,
+      notify,
     }),
-    [state, caption, runner, announce],
+    [state, caption, runner, announce, notify],
   )
 
   return (

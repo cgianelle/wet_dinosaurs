@@ -111,6 +111,9 @@ func TestWriteFixtures(t *testing.T) {
 	w := fixtureWriter{t: t}
 	w.valid("valid-minimal", validRequest())
 	w.valid("valid-irregular-50", irregularRoom())
+	for _, edge := range []string{EdgeTop, EdgeBottom, EdgeLeft, EdgeRight} {
+		w.valid("valid-gapped-"+edge, gappedRoom(edge))
+	}
 	for _, e := range errorFixtures() {
 		w.refused(e.name, e.status, e.request)
 	}
@@ -227,4 +230,34 @@ func irregularRoom() Request {
 			StudentIDs: []string{decimalID("student", 2*i), decimalID("student", 2*i+1)}})
 	}
 	return req
+}
+
+// gappedRoom is a small room with empty interior rows and columns, so the dense-rank reasons
+// (row N of M, column N of M count occupied lines only) are pinned for each front wall (AD-5).
+func gappedRoom(edge string) Request {
+	req := Request{Grid: Grid{Columns: 7, Rows: 6}, FrontEdge: edge}
+	cells := [][2]int{{0, 0}, {3, 0}, {6, 0}, {0, 3}, {3, 3}, {6, 3}, {3, 5}}
+	for i, cell := range cells {
+		req.Desks = append(req.Desks, Desk{ID: decimalID("desk", i), Column: cell[0], Row: cell[1]})
+		req.Students = append(req.Students, Student{ID: decimalID("student", i)})
+	}
+	req.Rules = []Rule{
+		{ID: "front-0", Type: RuleFront, StudentID: "student0"},
+		{ID: "front-1", Type: RuleFront, StudentID: "student1"},
+		{ID: "isle-2", Type: RuleIsle, StudentID: "student2"},
+		{ID: "isle-3", Type: RuleIsle, StudentID: "student3"},
+		{ID: "near-4-5", Type: RuleNotNear, StudentIDs: []string{"student4", "student5"}},
+	}
+	return req
+}
+
+func TestGappedFixturesCountOnlyOccupiedLines(t *testing.T) {
+	for _, edge := range []string{EdgeTop, EdgeBottom, EdgeLeft, EdgeRight} {
+		resp := solve(t, gappedRoom(edge))
+		for _, outcome := range resp.Arrangements[0].Outcomes {
+			if outcome.Detail.Rows > 3 || outcome.Detail.Columns > 3 {
+				t.Errorf("%s: %+v counts an empty line", edge, outcome.Detail)
+			}
+		}
+	}
 }

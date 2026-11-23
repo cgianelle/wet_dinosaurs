@@ -99,6 +99,8 @@ type Outcome struct {
 
 // Detail carries the reason data; which fields are set depends on the rule type.
 // Front: Row and Rows. NotNear: Distance. Isle: Column and Columns. All values are at least 1.
+// Row and Column are front-relative dense ranks among occupied lines, and Rows and Columns count
+// occupied lines, so a row or column with no desk is never counted (AD-3).
 type Detail struct {
 	Row      int `json:"row,omitempty"`
 	Rows     int `json:"rows,omitempty"`

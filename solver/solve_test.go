@@ -156,7 +156,7 @@ func TestFacadeScoresMatchTheEngineOnTheLegacyRoom(t *testing.T) {
 		req.Students = append(req.Students, Student{ID: decimalID("s", i)})
 	}
 	r := newRoom(req)
-	facade, err := seating.NewProblem(r.seats, r.people(), FrontScores(r.rows), r.engineRules())
+	facade, err := seating.NewProblem(r.seats, r.people(), r.frontTable, r.engineRules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,23 +178,22 @@ func TestFacadeScoresMatchTheEngineOnTheLegacyRoom(t *testing.T) {
 // the sign of the score the engine gives a one-rule problem.
 func TestOutcomesAgreeWithEngineScoringForOneRuleProblems(t *testing.T) {
 	rng := rand.New(rand.NewPCG(21, 22))
-	for _, edge := range []string{EdgeTop, EdgeRight} {
+	for _, edge := range []string{EdgeTop, EdgeBottom, EdgeLeft, EdgeRight} {
 		req := randomRoom(rng, edge)
 		for len(req.Desks) < 3 {
 			req = randomRoom(rng, edge)
 		}
 		r := newRoom(req)
-		front := FrontScores(r.rows)
 		index := r.studentIndex()
 		n := len(r.seats)
 		people := r.people()
 		for a := 0; a < n; a++ {
-			assertVerdictMatchesEngine(t, r, front, index, people, a, (a+1)%n)
+			assertVerdictMatchesEngine(t, r, index, people, a, (a+1)%n)
 		}
 	}
 }
 
-func assertVerdictMatchesEngine(t *testing.T, r room, front []int, index map[string]int, people []seating.Person, a, b int) {
+func assertVerdictMatchesEngine(t *testing.T, r room, index map[string]int, people []seating.Person, a, b int) {
 	t.Helper()
 	chromosome := make(seating.Chromosome, len(r.seats))
 	for seat := range chromosome {
@@ -210,22 +209,22 @@ func assertVerdictMatchesEngine(t *testing.T, r room, front []int, index map[str
 		return Rule{ID: "x", Type: typ, StudentID: r.students[0].ID}
 	}
 	engine := func(rules seating.Rules) seating.Scores {
-		p, err := seating.NewProblem(r.seats, people, front, rules)
+		p, err := seating.NewProblem(r.seats, people, r.frontTable, rules)
 		if err != nil {
 			t.Fatal(err)
 		}
 		return p.Evaluate(chromosome).Scores
 	}
 	frontScore := engine(seating.Rules{FrontRow: []int{0}}).Front
-	if got := r.outcomeOf(rule(RuleFront), seatOf, index, front).Result; got != frontResult(frontScore) {
+	if got := r.outcomeOf(rule(RuleFront), seatOf, index).Result; got != frontResult(frontScore) {
 		t.Errorf("front: facade %s, engine score %d", got, frontScore)
 	}
 	nearScore := engine(seating.Rules{NotNear: []seating.Pair{{A: 0, B: 1}}}).NearBy
-	if got := r.outcomeOf(rule(RuleNotNear), seatOf, index, front).Result; (got == ResultMet) != (nearScore > 0) {
+	if got := r.outcomeOf(rule(RuleNotNear), seatOf, index).Result; (got == ResultMet) != (nearScore > 0) {
 		t.Errorf("not near: facade %s, engine score %d", got, nearScore)
 	}
 	aisleScore := engine(seating.Rules{Aisle: []int{0}}).Aisle
-	if got := r.outcomeOf(rule(RuleIsle), seatOf, index, front).Result; (got == ResultMet) != (aisleScore > 0) {
+	if got := r.outcomeOf(rule(RuleIsle), seatOf, index).Result; (got == ResultMet) != (aisleScore > 0) {
 		t.Errorf("isle: facade %s, engine score %d", got, aisleScore)
 	}
 }

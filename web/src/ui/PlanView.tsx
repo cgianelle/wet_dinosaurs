@@ -1,22 +1,21 @@
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { useEffect, useRef, useState } from 'react'
-import { hasValidFrontCell } from '../model/geometry'
 import { canUndo } from '../model/history'
-import { frontMarker } from '../model/classroom'
-import type { Classroom, MarkerKind } from '../model/types'
+import type { Classroom } from '../model/types'
 import { useApp } from './AppContext'
-import { newId } from './ids'
 import { Palette } from './Palette'
 import { ReadinessChecklist, type FixTarget } from './ReadinessChecklist'
-import { RoomCanvas, type Selection, type Tool } from './RoomCanvas'
+import { dropOutcome, removalOf, type Tool } from './canvasCommands'
+import { RoomCanvas, type Selection } from './RoomCanvas'
+import type { Item } from './slots'
 import { RoomSizeBar } from './RoomSizeBar'
 import { RulesPanel } from './RulesPanel'
 import { StudentsPanel } from './StudentsPanel'
-import { MARKER_LABELS, failureMessage, plural } from './text'
+import { WALL_NAMES, failureDetails, failureMessage, plural, wallLabel } from './text'
 
 type PanelTab = 'students' | 'rules'
 
-const REMOVAL_LABELS = new Set(['remove desk', 'remove marker', 'remove student', 'remove rule', 'start over'])
+const REMOVAL_LABELS = new Set(['remove desk', "remove teacher's desk", 'remove door', 'remove student', 'remove rule', 'start over'])
 
 export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
   const app = useApp()
@@ -31,35 +30,15 @@ export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
 
   useEffect(() => {
     if (focusTarget === 'students' || focusTarget === 'rules') setTab(focusTarget)
-    if (focusTarget === 'canvas') canvasRef.current?.querySelector<HTMLElement>('[role="gridcell"][tabindex="0"]')?.focus()
   }, [focusTarget])
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    setDragging(null)
     if (!over || app.locked) return
-    const [kind, id] = String(active.id).split(/:(.*)/s)
-    const target = String(over.id)
-    if (target === 'palette') {
-      if (kind === 'desk') app.dispatchCommand({ type: 'removeDesk', id: id ?? '' })
-      if (kind === 'marker') app.dispatchCommand({ type: 'removeMarker', id: id ?? '' })
-      return
-    }
-    const [columnText, rowText] = target.replace('cell:', '').split(',')
-    const cell = { column: Number(columnText), row: Number(rowText) }
-    if (kind === 'tool') {
-      const dragged = id as Tool
-      app.dispatchCommand(
-        dragged === 'desk' ? { type: 'placeDesk', id: newId(), cell } : { type: 'placeMarker', id: newId(), kind: dragged, cell },
-      )
-    } else if (kind === 'desk') {
-      const desk = classroom.desks.find((d) => d.id === id)
-      if (desk && (desk.cell.column !== cell.column || desk.cell.row !== cell.row)) app.dispatchCommand({ type: 'moveDesk', id: id ?? '', to: cell })
-    } else if (kind === 'marker') {
-      const marker = classroom.markers.find((m) => m.id === id)
-      if (marker && (marker.cell.column !== cell.column || marker.cell.row !== cell.row)) app.dispatchCommand({ type: 'moveMarker', id: id ?? '', to: cell })
-    }
+    const result = dropOutcome(String(active.id), String(over.id))
+    if (typeof result === 'string') app.notify(result)
+    else if (result) app.dispatchCommand(result)
   }
 
   const changeTool = (next: Tool | null) => {
@@ -67,13 +46,20 @@ export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
     setMoving(null)
   }
 
-  const showHint = classroom.desks.length === 0 && classroom.markers.length === 0
-  const missingFront = !frontMarker(classroom)
+  const showHint = classroom.desks.length === 0 && classroom.doors.length === 0 && !classroom.teacherDesk
   const lastWasRemoval =
     editor.feedback?.kind === 'accepted' && REMOVAL_LABELS.has(editor.feedback.label) && canUndo(editor)
 
   return (
-    <DndContext sensors={sensors} onDragStart={(e) => setDragging(String(e.active.id))} onDragCancel={() => setDragging(null)} onDragEnd={onDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={(e) => setDragging(String(e.active.id))}
+      onDragCancel={() => setDragging(null)}
+      onDragEnd={(e) => {
+        setDragging(null)
+        onDragEnd(e)
+      }}
+    >
       <div className="plan-layout">
         <Palette classroom={classroom} tool={tool} onTool={changeTool} />
         <main className="plan-center" ref={canvasRef}>
@@ -82,14 +68,8 @@ export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
           <RoomSizeBar classroom={classroom} />
           {showHint && (
             <p className="hint onboarding">
-              Drag a Desk onto the grid, or click Desk and then click a cell. Drag Front onto a cell on the edge of the room where your board is.
+              Drag a Desk onto the grid, or click Desk and then click a cell. The blue wall is the front of the room (where your board is). Click another wall to change it.
             </p>
-          )}
-          {missingFront && hasValidFrontCell(classroom.grid) && (
-            <p className="notice">Place the Front marker on a cell at the edge of the room, where your board is.</p>
-          )}
-          {!hasValidFrontCell(classroom.grid) && (
-            <p className="notice">This room has no valid spot for the Front marker. Make it at least 3 wide or 3 tall.</p>
           )}
           <div className="canvas-wrap">
             <RoomCanvas
@@ -98,7 +78,6 @@ export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
               tool={tool}
               selection={selection}
               moving={moving}
-              dragging={dragging}
               onSelect={(next) => {
                 setSelection(next)
                 setMoving(null)
@@ -138,20 +117,38 @@ export function PlanView({ focusTarget }: { focusTarget: FixTarget | null }) {
           {tab === 'students' ? <StudentsPanel classroom={classroom} /> : <RulesPanel classroom={classroom} />}
           <section className="run-checklist" aria-labelledby="checklist-heading">
             <h2 id="checklist-heading">Run checklist</h2>
-            <ReadinessChecklist classroom={classroom} onFix={(target) => (target === 'canvas' ? setTool('front') : setTab(target))} />
+            <ReadinessChecklist classroom={classroom} onFix={(target) => setTab(target)} />
           </section>
         </aside>
       </div>
-      <DragOverlay>{dragging ? <div className="drag-ghost">{ghostLabel(dragging, classroom)}</div> : null}</DragOverlay>
+      <DragOverlay>{dragging ? <div className="drag-ghost">{ghostLabel(dragging)}</div> : null}</DragOverlay>
     </DndContext>
   )
 }
 
-function ghostLabel(dragId: string, classroom: Classroom): string {
+function ghostLabel(dragId: string): string {
   const [kind, id] = dragId.split(/:(.*)/s)
-  if (kind === 'tool') return id === 'desk' ? 'Desk' : MARKER_LABELS[id as MarkerKind]
-  if (kind === 'marker') return MARKER_LABELS[classroom.markers.find((m) => m.id === id)?.kind ?? 'back']
-  return 'Desk'
+  if (kind === 'tool') return id === 'door' ? 'Door' : id === 'teacherDesk' ? "Teacher's desk" : 'Desk'
+  return kind === 'door' ? 'Door' : kind === 'teacherDesk' ? "Teacher's desk" : 'Desk'
+}
+
+function describeSelection(classroom: Classroom, selection: Selection): { label: string; position: string; item: Item | null } | null {
+  if (selection.kind === 'wall') {
+    return { label: `${WALL_NAMES[selection.wall][0]?.toUpperCase()}${WALL_NAMES[selection.wall].slice(1)} wall (${wallLabel(classroom.frontWall, selection.wall)})`, position: '', item: null }
+  }
+  if (selection.kind === 'door') {
+    const door = classroom.doors.find((d) => d.id === selection.id)
+    if (!door) return null
+    const along = door.wall === 'top' || door.wall === 'bottom' ? `screen column ${door.index + 1}` : `screen row ${door.index + 1}`
+    return { label: 'Door', position: `on the ${door.wall} wall, ${along}`, item: selection }
+  }
+  const placed = selection.kind === 'desk' ? classroom.desks.find((d) => d.id === selection.id) : classroom.teacherDesk
+  if (!placed || placed.id !== selection.id) return null
+  return {
+    label: selection.kind === 'desk' ? 'Desk' : "Teacher's desk",
+    position: `at screen row ${placed.cell.row + 1}, column ${placed.cell.column + 1}`,
+    item: selection,
+  }
 }
 
 function SelectionStrip(props: {
@@ -163,28 +160,38 @@ function SelectionStrip(props: {
 }) {
   const app = useApp()
   const { classroom, selection } = props
-  const desk = selection?.kind === 'desk' ? classroom.desks.find((d) => d.id === selection.id) : undefined
-  const marker = selection?.kind === 'marker' ? classroom.markers.find((m) => m.id === selection.id) : undefined
-  const item = desk ?? marker
-  if (!selection || !item) return <p className="strip">Select a desk or marker to remove or move it.</p>
-  const label = marker ? `${MARKER_LABELS[marker.kind]} marker` : 'Desk'
-  const position = `row ${item.cell.row + 1}, column ${item.cell.column + 1}`
+  const described = selection ? describeSelection(classroom, selection) : null
+  if (!selection || !described) return <p className="strip">Select a desk, door, teacher's desk or wall to remove, move or change it.</p>
+  const { item } = described
   return (
     <p className="strip" role="group" aria-label="Selected item">
-      <span>{props.moving ? `Click an empty cell to move the ${label.toLowerCase()}.` : `${label} at ${position}`}</span>
-      <button type="button" disabled={app.locked} onClick={props.onMove}>
-        Move
-      </button>
-      <button
-        type="button"
-        disabled={app.locked}
-        onClick={() => {
-          app.dispatchCommand(selection.kind === 'desk' ? { type: 'removeDesk', id: selection.id } : { type: 'removeMarker', id: selection.id })
-          props.onClear()
-        }}
-      >
-        Remove
-      </button>
+      <span>
+        {props.moving
+          ? `Click ${selection.kind === 'door' ? 'a free spot on a wall' : 'an empty cell'} to move the ${described.label.toLowerCase()}.`
+          : `${described.label} ${described.position}`.trim()}
+      </span>
+      {item && (
+        <>
+          <button type="button" disabled={app.locked} onClick={props.onMove}>
+            Move
+          </button>
+          <button
+            type="button"
+            disabled={app.locked}
+            onClick={() => {
+              app.dispatchCommand(removalOf(item))
+              props.onClear()
+            }}
+          >
+            Remove
+          </button>
+        </>
+      )}
+      {selection.kind === 'wall' && selection.wall !== classroom.frontWall && (
+        <button type="button" disabled={app.locked} onClick={() => app.dispatchCommand({ type: 'setFrontWall', wall: selection.wall })}>
+          Make this the front wall
+        </button>
+      )}
     </p>
   )
 }
@@ -220,6 +227,7 @@ function FailureBanner() {
         Seating plans unavailable
       </h2>
       <p>{failureMessage(run.failure)}</p>
+      <p>Your room, students and rules are still here.</p>
       <div className="row">
         <button type="button" className="primary" onClick={app.retry}>
           Try again
@@ -230,7 +238,7 @@ function FailureBanner() {
       </div>
       <details>
         <summary>Show details</summary>
-        <p>{run.failure.kind === 'rejected' ? `Error code: ${run.failure.code}` : `Error: ${run.failure.kind}`}</p>
+        <p>{failureDetails(run.failure)}</p>
       </details>
     </div>
   )

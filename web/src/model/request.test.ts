@@ -14,8 +14,8 @@ const build = (...commands: Command[]): Classroom =>
 
 const room = () =>
   build(
-    { type: 'placeMarker', id: 'f', kind: 'front', cell: { column: 3, row: 0 } },
-    { type: 'placeMarker', id: 'door', kind: 'door', cell: { column: 7, row: 5 } },
+    { type: 'placeTeacherDesk', id: 'teacher', cell: { column: 7, row: 0 } },
+    { type: 'placeDoor', id: 'door', wall: 'bottom', index: 7 },
     { type: 'placeDesk', id: 'd1', cell: { column: 1, row: 1 } },
     { type: 'placeDesk', id: 'd2', cell: { column: 2, row: 1 } },
     { type: 'addStudent', id: 's1', name: 'Maya' },
@@ -24,7 +24,7 @@ const room = () =>
   )
 
 describe('toRequest', () => {
-  it('sends ids and cells only: no names, no non-front markers', () => {
+  it('sends ids and cells only: no names, doors or teacher desk', () => {
     const request = toRequest(room())
     expect(request).toEqual({
       grid: { columns: 8, rows: 6 },
@@ -36,19 +36,24 @@ describe('toRequest', () => {
     const text = JSON.stringify(request)
     expect(text).not.toContain('Maya')
     expect(text).not.toContain('door')
+    expect(text).not.toContain('teacher')
   })
 
-  it('is null without a valid Front marker', () => {
-    expect(toRequest(emptyClassroom())).toBeNull()
-    const corner = { ...room(), markers: [{ id: 'f', kind: 'front' as const, cell: { column: 0, row: 0 } }] }
-    expect(toRequest(corner)).toBeNull()
+  it.each(['top', 'bottom', 'left', 'right'] as const)('copies the %s front wall verbatim', (wall) => {
+    const c = applyCommand(room(), { type: 'setFrontWall', wall })
+    expect(c.ok && toRequest(c.classroom).frontEdge).toBe(wall)
+  })
+
+  it('always has a front: even an empty 1 x 1 room produces a request', () => {
+    const tiny = applyCommand(emptyClassroom(), { type: 'resizeGrid', columns: 1, rows: 1 })
+    expect(tiny.ok && toRequest(tiny.classroom).frontEdge).toBe('top')
   })
 })
 
 describe('staleness', () => {
   const resultFor = (c: Classroom): RunResult => ({
-    fingerprint: currentFingerprint(c) as string,
-    request: toRequest(c)!,
+    fingerprint: currentFingerprint(c),
+    request: toRequest(c),
     snapshot: c,
     arrangements: [],
   })
@@ -65,7 +70,7 @@ describe('staleness', () => {
     ['moving a desk', { type: 'moveDesk', id: 'd1', to: { column: 5, row: 5 } }],
     ['removing a rule', { type: 'removeRule', id: 'r1' }],
     ['removing a student', { type: 'removeStudent', id: 's2' }],
-    ['moving the front marker to another edge', { type: 'moveMarker', id: 'f', to: { column: 0, row: 2 } }],
+    ['changing the front wall', { type: 'setFrontWall', wall: 'left' }],
     ['resizing the grid', { type: 'resizeGrid', columns: 9, rows: 6 }],
   ])('is stale after %s', (_name, command) => {
     const c = room()
@@ -74,16 +79,32 @@ describe('staleness', () => {
     expect(next.ok && isOutOfDate(result, next.classroom)).toBe(true)
   })
 
-  it('sliding the front marker along its edge does not change the inputs', () => {
+  it.each<[string, Command]>([
+    ['moving a door', { type: 'moveDoor', id: 'door', wall: 'bottom', index: 6 }],
+    ['removing a door', { type: 'removeDoor', id: 'door' }],
+    ['placing another door', { type: 'placeDoor', id: 'door2', wall: 'top', index: 0 }],
+    ["moving the teacher's desk", { type: 'moveTeacherDesk', to: { column: 6, row: 0 } }],
+    ["removing the teacher's desk", { type: 'removeTeacherDesk' }],
+  ])('is not stale after %s (FR-23)', (_name, command) => {
     const c = room()
-    const next = applyCommand(c, { type: 'moveMarker', id: 'f', to: { column: 4, row: 0 } })
+    const next = applyCommand(c, command)
     expect(next.ok && isOutOfDate(resultFor(c), next.classroom)).toBe(false)
   })
 
-  it('moving a door does not change the inputs', () => {
+  it('keeps the run snapshot of the front wall, doors and teacher desk', () => {
     const c = room()
-    const next = applyCommand(c, { type: 'moveMarker', id: 'door', to: { column: 6, row: 5 } })
-    expect(next.ok && isOutOfDate(resultFor(c), next.classroom)).toBe(false)
+    const result = resultFor(c)
+    const next = applyCommand(c, { type: 'setFrontWall', wall: 'right' })
+    expect(next.ok && isOutOfDate(result, next.classroom)).toBe(true)
+    expect(result.snapshot.frontWall).toBe('top')
+    expect(result.snapshot.doors).toHaveLength(1)
+    expect(result.snapshot.teacherDesk?.id).toBe('teacher')
+  })
+
+  it('does not depend on the order of desks, students or rules in the list', () => {
+    const c = room()
+    const shuffled = { ...c, desks: [...c.desks].reverse(), students: [...c.students].reverse() }
+    expect(isOutOfDate(resultFor(c), shuffled)).toBe(false)
   })
 
   it('undo back to the run inputs clears the badge', () => {

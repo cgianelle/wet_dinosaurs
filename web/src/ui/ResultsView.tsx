@@ -171,7 +171,7 @@ export function ResultsView() {
         </div>
         <p className="strip">
           {selectedDesk && selectedStudentId
-            ? `${nameOf(selectedStudentId)}: desk row ${selectedDesk.cell.row + 1}, column ${selectedDesk.cell.column + 1}. ${plural(rows.length, 'rule')} involve${rows.length === 1 ? 's' : ''} ${nameOf(selectedStudentId)}.`
+            ? `${nameOf(selectedStudentId)}: screen row ${selectedDesk.cell.row + 1}, column ${selectedDesk.cell.column + 1}${frontRelativeNote(snapshot, arrangement, selectedStudentId)}. ${plural(rows.length, 'rule')} involve${rows.length === 1 ? 's' : ''} ${nameOf(selectedStudentId)}.`
             : `${plural(snapshot.desks.length, 'student')} seated in ${plural(snapshot.desks.length, 'desk')}.`}
           {(selectedDeskId || selectedRuleId) && (
             <button
@@ -218,13 +218,27 @@ export function ResultsView() {
         })}
         {arrangement.outcomes.some((o) => o.result === 'neutral') && (
           <p className="help">
-            Neutral: sits in a row that scores exactly zero, neither near the front nor at the back. This only happens in rooms with an odd number of desk rows (3 or more).
+            Neutral: sits in a row that scores exactly zero, neither near the front nor at the back.
           </p>
         )}
         <HowRulesAreJudged />
       </aside>
     </div>
   )
+}
+
+/**
+ * The front-relative position the service reported for a student, shown beside the screen position
+ * (they differ when rows are empty or the front wall is not the top). Read from outcomes only.
+ */
+function frontRelativeNote(snapshot: Classroom, arrangement: Arrangement, studentId: string): string {
+  for (const outcome of arrangement.outcomes) {
+    const rule = snapshot.rules.find((r) => r.id === outcome.ruleId)
+    if (rule?.type === 'front' && rule.studentId === studentId && outcome.detail.row !== undefined) {
+      return `; row ${outcome.detail.row} from the front`
+    }
+  }
+  return ''
 }
 
 function OutcomeRow(props: {
