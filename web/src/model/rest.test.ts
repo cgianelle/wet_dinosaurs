@@ -3,7 +3,7 @@ import { runBlockers } from './blockers'
 import { previewFill, previewPasteList } from './bulk'
 import { emptyClassroom } from './classroom'
 import type { Arrangement } from './contract'
-import { MARKER_LIMITS, MAX_DESKS, MAX_STUDENTS, limitMessage } from './limits'
+import { MAX_DESKS, MAX_DOORS, MAX_STUDENTS, MAX_TEACHER_DESKS, limitMessage } from './limits'
 import { fewestBrokenOption, formatScore } from './results'
 import type { Classroom } from './types'
 
@@ -15,7 +15,7 @@ const withDesksAndStudents = (desks: number, students: number): Classroom => ({
 
 describe('runBlockers', () => {
   it('lists every problem of an empty room in order', () => {
-    expect(runBlockers(emptyClassroom())).toEqual([{ kind: 'noStudents' }, { kind: 'noFrontMarker' }])
+    expect(runBlockers(emptyClassroom())).toEqual([{ kind: 'noStudents' }])
   })
 
   it('carries the signed difference of a count mismatch', () => {
@@ -23,20 +23,23 @@ describe('runBlockers', () => {
     expect(runBlockers(c)).toContainEqual({ kind: 'countMismatch', students: 3, desks: 5 })
   })
 
-  it('flags a front marker left in a corner after an edit', () => {
-    const c = { ...withDesksAndStudents(1, 1), markers: [{ id: 'f', kind: 'front' as const, cell: { column: 0, row: 0 } }] }
-    expect(runBlockers(c)).toEqual([{ kind: 'frontMarkerNotOnEdge' }])
+  it("never counts the teacher's desk as a desk", () => {
+    const c = { ...withDesksAndStudents(2, 2), teacherDesk: { id: 't', cell: { column: 7, row: 5 } } }
+    expect(runBlockers(c)).toEqual([])
+  })
+
+  it('has no front blocker: every room from 1 x 1 up has a front wall', () => {
+    const c = { ...withDesksAndStudents(1, 1), grid: { columns: 1, rows: 1 }, desks: [{ id: 'd', cell: { column: 0, row: 0 } }] }
+    expect(runBlockers(c)).toEqual([])
   })
 
   it('is empty for a runnable room, with zero rules', () => {
-    const c = { ...withDesksAndStudents(2, 2), markers: [{ id: 'f', kind: 'front' as const, cell: { column: 3, row: 0 } }] }
-    expect(runBlockers(c)).toEqual([])
+    expect(runBlockers(withDesksAndStudents(2, 2))).toEqual([])
   })
 
   it('reports an orphaned rule', () => {
     const c = {
       ...withDesksAndStudents(1, 1),
-      markers: [{ id: 'f', kind: 'front' as const, cell: { column: 3, row: 0 } }],
       rules: [{ id: 'r', type: 'front' as const, studentId: 'ghost' }],
     }
     expect(runBlockers(c)).toEqual([{ kind: 'ruleError', ruleId: 'r', reason: 'unknownStudent' }])
@@ -62,13 +65,13 @@ describe('previewPasteList', () => {
 })
 
 describe('previewFill', () => {
-  it('counts replaced desks and skipped markers', () => {
+  it("counts replaced desks and skips the teacher's desk cell", () => {
     const c: Classroom = {
       ...withDesksAndStudents(2, 0),
-      markers: [{ id: 'm', kind: 'door', cell: { column: 2, row: 0 } }],
+      teacherDesk: { id: 't', cell: { column: 2, row: 0 } },
     }
     const p = previewFill(c, { columns: 3, rows: 1, aisle: false })
-    expect(p).toMatchObject({ ok: true, replaced: 2, skippedMarkers: 1, totalDesks: 2 })
+    expect(p).toMatchObject({ ok: true, replaced: 2, skippedTeacherDesk: true, totalDesks: 2 })
   })
 
   it('refuses a block that would exceed the desk limit, in the preview', () => {
@@ -112,7 +115,8 @@ describe('limits', () => {
   it('holds the contract numbers and wording', () => {
     expect(MAX_DESKS).toBe(50)
     expect(MAX_STUDENTS).toBe(50)
-    expect(MARKER_LIMITS).toEqual({ front: 1, back: 1, side: 2, door: 3, teacherDesk: 1 })
+    expect(MAX_DOORS).toBe(3)
+    expect(MAX_TEACHER_DESKS).toBe(1)
     expect(limitMessage('desks')).toBe('Room is full (50 desks).')
   })
 })

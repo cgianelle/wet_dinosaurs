@@ -6,7 +6,6 @@ import { createRunner } from './runner'
 import type { SolveOutcome } from '../solver/client'
 
 const roomCommands: Command[] = [
-  { type: 'placeMarker', id: 'f', kind: 'front', cell: { column: 3, row: 0 } },
   { type: 'placeDesk', id: 'd1', cell: { column: 1, row: 1 } },
   { type: 'addStudent', id: 's1', name: 'Maya' },
 ]

@@ -1,18 +1,14 @@
 import type { SolveRequest } from './contract'
-import { frontEdgeOf } from './geometry'
 import type { Classroom } from './types'
 
 /**
- * The single translation from a Classroom to the wire request. Names and non-front markers never
- * leave the browser (AD-4). Null when the room has no valid Front marker.
+ * The single translation from a Classroom to the wire request. Names, doors, the teacher's desk and
+ * the back and side walls never leave the browser (AD-4, D-4).
  */
-export function toRequest(c: Classroom): SolveRequest | null {
-  const front = c.markers.find((m) => m.kind === 'front')
-  const frontEdge = front ? frontEdgeOf(c.grid, front.cell) : null
-  if (!frontEdge) return null
+export function toRequest(c: Classroom): SolveRequest {
   return {
     grid: { columns: c.grid.columns, rows: c.grid.rows },
-    frontEdge,
+    frontEdge: c.frontWall,
     desks: c.desks.map((d) => ({ id: d.id, column: d.cell.column, row: d.cell.row })),
     students: c.students.map((s) => ({ id: s.id })),
     rules: c.rules.map((r) =>
@@ -32,10 +28,16 @@ export function canonicalJson(value: unknown): string {
   )
 }
 
-export const fingerprintOf = (request: SolveRequest): string => canonicalJson(request)
+const byId = <T extends { id: string }>(items: readonly T[]): T[] => [...items].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
 
-/** The fingerprint of a classroom's current inputs, or null when it cannot be run. */
-export function currentFingerprint(c: Classroom): string | null {
-  const request = toRequest(c)
-  return request ? fingerprintOf(request) : null
-}
+/** Canonical string of a request: sorted keys, and desks, students and rules sorted by id (AD-11). */
+export const fingerprintOf = (request: SolveRequest): string =>
+  canonicalJson({
+    ...request,
+    desks: byId(request.desks),
+    students: byId(request.students),
+    rules: byId(request.rules).map((r) => (r.type === 'notNear' ? { ...r, studentIds: [...r.studentIds].sort() } : r)),
+  })
+
+/** The fingerprint of a classroom's current inputs (AD-11). */
+export const currentFingerprint = (c: Classroom): string => fingerprintOf(toRequest(c))

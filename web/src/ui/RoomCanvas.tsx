@@ -1,44 +1,37 @@
-import { useDraggable, useDroppable } from '@dnd-kit/core'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type MouseEvent,
-  type PointerEvent,
-} from 'react'
-import { frontEdgeOf, occupantOf, sameCell } from '../model/geometry'
-import type { Cell, Classroom, MarkerKind } from '../model/types'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react'
+import { wallRoles } from '../model/geometry'
+import type { Classroom, Wall } from '../model/types'
 import { useApp } from './AppContext'
-import { newId } from './ids'
-import { MARKER_LABELS } from './text'
+import { ITEM_NAMES, movementOf, placementOf, removalOf, type Tool } from './canvasCommands'
+import { DistanceLine } from './DistanceLine'
+import { SlotView, type Mark } from './SlotView'
+import {
+  ARROWS,
+  WALL_POSITION,
+  WALL_TITLES,
+  allSlots,
+  clampSlot,
+  itemAt,
+  sameSlot,
+  slotFromEvent,
+  slotKey,
+  toSlot,
+  toXY,
+  type Item,
+  type Slot,
+} from './slots'
+import { wallLabel } from './text'
+import { usePaintStroke } from './usePaintStroke'
 
-export type Tool = 'desk' | MarkerKind
-
-/** A desk or marker picked out in the editor. */
-export interface Selection {
-  readonly kind: 'desk' | 'marker'
-  readonly id: string
-}
+/** A placed item, or a wall, picked out in the editor. */
+export type Selection =
+  | { readonly kind: 'desk' | 'teacherDesk' | 'door'; readonly id: string }
+  | { readonly kind: 'wall'; readonly wall: Wall }
 
 export interface DeskInfo {
   readonly name: string
-  readonly mark: 'notMet' | 'neutral' | null
+  readonly mark: Mark
   readonly label: string
-}
-
-type Mark = DeskInfo['mark']
-
-const MARKER_ICONS: Readonly<Record<MarkerKind, string>> = {
-  front: '▲',
-  back: '▼',
-  side: '◀',
-  door: '▯',
-  teacherDesk: '★',
 }
 
 interface EditProps {
@@ -46,10 +39,8 @@ interface EditProps {
   readonly classroom: Classroom
   readonly tool: Tool | null
   readonly selection: Selection | null
-  /** Chosen with the selection strip's Move: the next empty cell clicked is its destination. */
+  /** Chosen with the selection strip's Move: the next valid spot clicked is its destination. */
   readonly moving: Selection | null
-  /** The dnd-kit id being dragged, if any; used to show where Front may be dropped. */
-  readonly dragging: string | null
   readonly onSelect: (selection: Selection | null) => void
   readonly onMoved: () => void
 }
@@ -67,170 +58,108 @@ interface ReadonlyProps {
 
 export type RoomCanvasProps = EditProps | ReadonlyProps
 
-type Item = { readonly kind: 'desk'; readonly id: string } | { readonly kind: 'marker'; readonly id: string; readonly marker: MarkerKind }
-
-function itemAt(classroom: Classroom, cell: Cell): Item | null {
-  const occupant = occupantOf(classroom, cell)
-  if (!occupant) return null
-  return occupant.kind === 'desk' ? { kind: 'desk', id: occupant.id } : { kind: 'marker', id: occupant.id, marker: occupant.kind }
+const labelPlacement = (wall: Wall, columns: number, rows: number): CSSProperties => {
+  switch (wall) {
+    case 'top':
+      return { gridColumn: `2 / span ${columns}`, gridRow: 1 }
+    case 'bottom':
+      return { gridColumn: `2 / span ${columns}`, gridRow: rows + 2 }
+    case 'left':
+      return { gridColumn: 1, gridRow: `2 / span ${rows}` }
+    case 'right':
+      return { gridColumn: columns + 2, gridRow: `2 / span ${rows}` }
+  }
 }
 
-function cellFromEvent(target: EventTarget | null): Cell | null {
-  const value = (target as HTMLElement | null)?.closest?.('[data-cell]')?.getAttribute('data-cell')
-  const [column, row] = (value ?? '').split(',').map(Number)
-  return column === undefined || row === undefined || Number.isNaN(column) || Number.isNaN(row) ? null : { column, row }
-}
-
-interface CellViewProps {
-  readonly column: number
-  readonly row: number
-  readonly item: Item | null
-  readonly text: string
-  readonly ariaLabel: string
-  readonly focusable: boolean
-  readonly selected: boolean
-  readonly held: boolean
-  readonly target: 'valid' | 'invalid' | null
-  readonly interactive: boolean
-  readonly dim: boolean
-  readonly mark: Mark
-  readonly emphasised: boolean
-  readonly toolActive: boolean
-}
-
-/** Memoized so a drag over 50 desks re-renders only the cells whose props changed (NFR). */
-const CellView = memo(function CellView(props: CellViewProps) {
-  const { column, row, item } = props
-  const { setNodeRef, isOver } = useDroppable({ id: `cell:${column},${row}`, disabled: !props.interactive })
-  const classes = [
-    'cell',
-    !item && 'cell-empty',
-    item?.kind === 'desk' && 'cell-desk',
-    item?.kind === 'marker' && `cell-marker marker-${item.marker}`,
-    props.selected && 'is-selected',
-    props.held && 'is-held',
-    props.dim && 'is-dim',
-    props.emphasised && 'is-emphasised',
-    props.mark && `mark-${props.mark}`,
-    props.toolActive && !item && 'tool-active',
-    isOver && props.target !== 'invalid' && 'is-over',
-    props.target === 'invalid' && 'is-blocked',
-    props.target === 'valid' && 'is-valid-target',
-  ]
-    .filter(Boolean)
-    .join(' ')
-  return (
-    <div
-      ref={setNodeRef}
-      role="gridcell"
-      className={classes}
-      data-cell={`${column},${row}`}
-      tabIndex={props.focusable ? 0 : -1}
-      aria-label={props.ariaLabel}
-      aria-selected={props.selected}
-    >
-      {item && props.interactive ? <DraggableFace item={item} text={props.text} /> : <Face item={item} text={props.text} mark={props.mark} />}
-    </div>
-  )
-})
-
-function DraggableFace({ item, text }: { item: Item; text: string }) {
-  const { setNodeRef, listeners } = useDraggable({ id: `${item.kind}:${item.id}` })
-  return (
-    <div ref={setNodeRef} className="item-drag" {...listeners}>
-      <Face item={item} text={text} mark={null} />
-    </div>
-  )
-}
-
-function Face({ item, text, mark }: { item: Item | null; text: string; mark: Mark }) {
-  if (!item) return null
-  return (
-    <span className="item-face" aria-hidden="true">
-      {item.kind === 'marker' && <span className="marker-icon">{MARKER_ICONS[item.marker]}</span>}
-      <span className="item-text">{text}</span>
-      {mark && <span className={`mark-badge mark-badge-${mark}`}>{mark === 'notMet' ? '⚠' : '–'}</span>}
-    </span>
-  )
-}
-
-const ARROWS: Readonly<Record<string, Cell>> = {
-  ArrowUp: { column: 0, row: -1 },
-  ArrowDown: { column: 0, row: 1 },
-  ArrowLeft: { column: -1, row: 0 },
-  ArrowRight: { column: 1, row: 0 },
-}
-
-/** The room as a grid, shared by Plan (editable) and Results (read-only) (UX section 12). */
+/** The room as a grid inside four wall bands, shared by Plan (editable) and Results (read-only). */
 export function RoomCanvas(props: RoomCanvasProps) {
   const { classroom } = props
-  const { grid } = classroom
+  const { grid, frontWall } = classroom
   const app = useApp()
   const containerRef = useRef<HTMLDivElement>(null)
-  const [focus, setFocus] = useState<Cell>({ column: 0, row: 0 })
-  const [held, setHeld] = useState<{ item: Item; from: Cell } | null>(null)
-  const painting = useRef(false)
+  const [focus, setFocus] = useState<Slot>({ kind: 'cell', cell: { column: 0, row: 0 } })
+  const [held, setHeld] = useState<{ item: Item; from: Slot } | null>(null)
 
   const edit = props.mode === 'edit' ? props : null
+  const readonly = props.mode === 'readonly' ? props : null
   const interactive = edit !== null && !app.locked
-  const front = classroom.markers.find((m) => m.kind === 'front')
-  const frontEdge = front ? frontEdgeOf(grid, front.cell) : null
-  const focusCell = useMemo(
-    () => ({ column: Math.min(focus.column, grid.columns - 1), row: Math.min(focus.row, grid.rows - 1) }),
-    [focus, grid.columns, grid.rows],
-  )
+  const roles = wallRoles(frontWall)
+  const focusSlot = useMemo(() => clampSlot(grid, focus), [focus, grid])
+  const focusKey = slotKey(focusSlot)
 
   useEffect(() => {
     const container = containerRef.current
     if (!container?.contains(document.activeElement)) return
-    container.querySelector<HTMLElement>(`[data-cell="${focusCell.column},${focusCell.row}"]`)?.focus()
-  }, [focusCell])
+    container.querySelector<HTMLElement>(`[data-slot="${focusKey}"]`)?.focus()
+  }, [focusKey])
 
-  const place = useCallback(
-    (cell: Cell, tool: Tool) =>
-      app.dispatchCommand(tool === 'desk' ? { type: 'placeDesk', id: newId(), cell } : { type: 'placeMarker', id: newId(), kind: tool, cell }),
-    [app],
-  )
+  const notify = app.notify
 
-  const move = useCallback(
-    (what: Selection, to: Cell) =>
-      app.dispatchCommand(what.kind === 'desk' ? { type: 'moveDesk', id: what.id, to } : { type: 'moveMarker', id: what.id, to }),
-    [app],
-  )
-
-  const describe = (cell: Cell): string => {
-    const position = `Row ${cell.row + 1}, column ${cell.column + 1}`
-    const item = itemAt(classroom, cell)
-    if (!item) return `${position}, empty`
-    if (item.kind === 'marker') {
-      const edge = item.marker === 'front' ? frontEdgeOf(grid, cell) : null
-      return `${position}, ${MARKER_LABELS[item.marker]} marker${edge ? `, ${edge} edge` : ''}`
+  const describe = (slot: Slot): string => {
+    if (slot.kind === 'cell') {
+      const position = `Screen row ${slot.cell.row + 1}, column ${slot.cell.column + 1}`
+      const item = itemAt(classroom, slot)
+      if (!item) return `${position}, empty`
+      if (item.kind === 'teacherDesk') return `${position}, Teacher's desk`
+      return readonly ? `${position}: ${readonly.deskInfo.get(item.id)?.label ?? 'desk'}` : `${position}, desk`
     }
-    return props.mode === 'readonly' ? `${position}: ${props.deskInfo.get(item.id)?.label ?? 'desk'}` : `${position}, desk`
+    const base = `${WALL_TITLES[slot.wall]}, ${WALL_POSITION[slot.wall](slot.index)}, ${wallLabel(frontWall, slot.wall)}`
+    const door = classroom.doors.findIndex((d) => d.wall === slot.wall && d.index === slot.index)
+    if (door < 0) return base
+    return `${base}, ${classroom.doors.length > 1 ? `Door ${door + 1}` : 'Door'}`
   }
 
-  const activate = (cell: Cell) => {
+  const move = useCallback(
+    (what: Item, to: Slot) => {
+      const command = movementOf(what, to)
+      if (typeof command === 'string') notify(command)
+      else app.dispatchCommand(command)
+    },
+    [app, notify],
+  )
+
+  const place = useCallback(
+    (slot: Slot, tool: Tool) => {
+      const command = placementOf(tool, slot)
+      if (typeof command === 'string') notify(command)
+      else app.dispatchCommand(command)
+    },
+    [app, notify],
+  )
+
+  /** Shared by keyboard and pointer: drops the item chosen with Move onto a free spot. */
+  const completeMove = (edit: EditProps, slot: Slot, item: Item | null): boolean => {
+    if (!edit.moving || item || edit.moving.kind === 'wall') return false
+    move(edit.moving, slot)
+    edit.onMoved()
+    return true
+  }
+
+  /** Shared by keyboard and pointer: an empty spot takes the active tool, else selects the wall or clears. */
+  const actOnEmptySlot = (edit: EditProps, slot: Slot) => {
+    if (edit.tool) place(slot, edit.tool)
+    else edit.onSelect(slot.kind === 'wall' ? { kind: 'wall', wall: slot.wall } : null)
+  }
+
+  const activate = (slot: Slot) => {
     if (!edit) return
-    const item = itemAt(classroom, cell)
+    const item = itemAt(classroom, slot)
     if (held) {
       setHeld(null)
-      if (!sameCell(held.from, cell)) move(held.item, cell)
+      if (!sameSlot(held.from, slot)) move(held.item, slot)
       return
     }
-    if (edit.moving && !item) {
-      move(edit.moving, cell)
-      edit.onMoved()
-    } else if (item) {
-      edit.onSelect({ kind: item.kind, id: item.id })
-      setHeld({ item, from: cell })
-      const what = item.kind === 'desk' ? 'Desk' : MARKER_LABELS[item.marker]
-      app.announce(
-        `${what} picked up from row ${cell.row + 1}, column ${cell.column + 1}. Use arrow keys to choose a cell, Enter to drop, Escape to cancel.`,
-      )
-    } else if (edit.tool) {
-      place(cell, edit.tool)
+    if (completeMove(edit, slot, item)) return
+    if (item) {
+      edit.onSelect(item)
+      setHeld({ item, from: slot })
+      const where =
+        slot.kind === 'cell'
+          ? `screen row ${slot.cell.row + 1}, column ${slot.cell.column + 1}`
+          : `the ${slot.wall} wall, ${WALL_POSITION[slot.wall](slot.index)}`
+      app.announce(`${ITEM_NAMES[item.kind]} picked up from ${where}. Use arrow keys to choose a spot, Enter to drop, Escape to cancel.`)
     } else {
-      edit.onSelect(null)
+      actOnEmptySlot(edit, slot)
     }
   }
 
@@ -238,144 +167,124 @@ export function RoomCanvas(props: RoomCanvasProps) {
     const step = ARROWS[event.key]
     if (step) {
       event.preventDefault()
-      setFocus({
-        column: Math.max(0, Math.min(grid.columns - 1, focusCell.column + step.column)),
-        row: Math.max(0, Math.min(grid.rows - 1, focusCell.row + step.row)),
-      })
+      const { x, y } = toXY(grid, focusSlot)
+      const next = toSlot(grid, x + step.x, y + step.y)
+      if (next && (edit || next.kind === 'cell')) setFocus(next)
       return
     }
-    if (props.mode === 'readonly') {
+    if (readonly) {
+      const item = itemAt(classroom, focusSlot)
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
-        const item = itemAt(classroom, focusCell)
-        props.onSelectDesk(item?.kind === 'desk' ? item.id : null)
-      } else if (event.key === 'Escape') props.onSelectDesk(null)
+        readonly.onSelectDesk(item?.kind === 'desk' ? item.id : null)
+      } else if (event.key === 'Escape') readonly.onSelectDesk(null)
       return
     }
-    if (!interactive) return
+    if (!edit || !interactive) return
     if (event.key === 'Escape') {
       if (held) {
         setFocus(held.from)
         setHeld(null)
         app.announce('Move cancelled.')
-      } else props.onSelect(null)
+      } else edit.onSelect(null)
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      activate(focusCell)
+      activate(focusSlot)
     } else if (event.key === 'Delete' || event.key === 'Backspace') {
-      const item = itemAt(classroom, focusCell)
+      const item = itemAt(classroom, focusSlot)
       if (!item) return
       event.preventDefault()
-      app.dispatchCommand(item.kind === 'desk' ? { type: 'removeDesk', id: item.id } : { type: 'removeMarker', id: item.id })
+      app.dispatchCommand(removalOf(item))
     }
   }
 
   const handleClick = (event: MouseEvent<HTMLDivElement>) => {
-    const cell = cellFromEvent(event.target)
-    if (!cell) return
-    setFocus(cell)
-    const item = itemAt(classroom, cell)
-    if (props.mode === 'readonly') return props.onSelectDesk(item?.kind === 'desk' ? item.id : null)
+    const slot = slotFromEvent(event.target)
+    if (!slot) return
+    setFocus(slot)
+    const item = itemAt(classroom, slot)
+    if (readonly) return readonly.onSelectDesk(item?.kind === 'desk' ? item.id : null)
     if (!edit || !interactive) return
-    if (edit.moving && !item) {
-      move(edit.moving, cell)
-      edit.onMoved()
-    } else if (item) edit.onSelect({ kind: item.kind, id: item.id })
-    else if (edit.tool && edit.tool !== 'desk') place(cell, edit.tool)
-    else if (!edit.tool) edit.onSelect(null)
+    if (completeMove(edit, slot, item)) return
+    if (item) edit.onSelect(item)
+    else if (edit.tool === 'desk' && slot.kind === 'cell') return // painted by the pointer stroke
+    else actOnEmptySlot(edit, slot)
   }
 
-  // The Desk tool paints on press and drag; other tools place on click.
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!edit || !interactive || edit.tool !== 'desk' || event.button !== 0) return
-    const cell = cellFromEvent(event.target)
-    if (!cell || itemAt(classroom, cell)) return
-    painting.current = true
-    place(cell, 'desk')
-    window.addEventListener('pointerup', () => (painting.current = false), { once: true })
-  }
-
-  const handlePointerOver = (event: PointerEvent<HTMLDivElement>) => {
-    if (!painting.current) return
-    const cell = cellFromEvent(event.target)
-    if (cell && !itemAt(classroom, cell)) place(cell, 'desk')
-  }
-
-  const dragging = edit?.dragging ?? null
-  const draggingFront = dragging === 'tool:front' || (dragging?.startsWith('marker:') === true && classroom.markers.some((m) => `marker:${m.id}` === dragging && m.kind === 'front'))
-  const readonly = props.mode === 'readonly' ? props : null
-
-  const cells: Cell[] = []
-  for (let row = 0; row < grid.rows; row++) for (let column = 0; column < grid.columns; column++) cells.push({ column, row })
+  const paint = usePaintStroke({
+    classroom,
+    enabled: edit !== null && interactive && edit.tool === 'desk',
+    placeDesk: (slot) => place(slot, 'desk'),
+    notify,
+  })
 
   return (
     <div className="canvas-region">
-      <div className={`room-frame${frontEdge ? ` front-${frontEdge}` : ''}`} style={{ '--columns': grid.columns, '--rows': grid.rows } as CSSProperties}>
-        {frontEdge && (
-          <div className={`front-bar front-bar-${frontEdge}`} aria-hidden="true">
-            <span>Front of room</span>
+      <div
+        ref={containerRef}
+        className={`room-ring front-${frontWall}${readonly ? ' is-readonly' : ''}${app.locked ? ' is-locked' : ''}`}
+        style={{ '--columns': grid.columns, '--rows': grid.rows } as CSSProperties}
+        role="grid"
+        aria-label={readonly ? 'Seating plan' : 'Room'}
+        aria-rowcount={grid.rows}
+        aria-colcount={grid.columns}
+        onKeyDown={handleKeyDown}
+        onFocus={(event) => {
+          const slot = slotFromEvent(event.target)
+          if (slot && (edit || slot.kind === 'cell')) setFocus(slot)
+        }}
+        onClick={handleClick}
+        onPointerDown={paint.onPointerDown}
+        onPointerOver={paint.onPointerOver}
+      >
+        {(['top', 'bottom', 'left', 'right'] as const).map((wall) => (
+          <div
+            key={wall}
+            className={`wall-label wall-label-${wall} band-${roles[wall]}`}
+            style={labelPlacement(wall, grid.columns, grid.rows)}
+            aria-hidden="true"
+          >
+            <span>{wallLabel(frontWall, wall)}</span>
           </div>
-        )}
-        <div
-          ref={containerRef}
-          className={`room-grid${readonly ? ' is-readonly' : ''}${app.locked ? ' is-locked' : ''}`}
-          role="grid"
-          aria-label={readonly ? 'Seating plan' : 'Room'}
-          aria-rowcount={grid.rows}
-          aria-colcount={grid.columns}
-          onKeyDown={handleKeyDown}
-          onClick={handleClick}
-          onPointerDown={handlePointerDown}
-          onPointerOver={handlePointerOver}
-        >
-          {cells.map((cell) => {
-            const item = itemAt(classroom, cell)
-            const info = item?.kind === 'desk' ? readonly?.deskInfo.get(item.id) : undefined
-            const inRule = item?.kind === 'desk' && readonly?.highlighted?.has(item.id) === true
-            const text = item?.kind === 'marker' ? MARKER_LABELS[item.marker] : item ? (readonly ? (info?.name ?? '') : 'Desk') : ''
-            return (
-              <CellView
-                key={`${cell.column},${cell.row}`}
-                column={cell.column}
-                row={cell.row}
-                item={item}
-                text={text}
-                ariaLabel={describe(cell)}
-                focusable={sameCell(cell, focusCell)}
-                selected={item !== null && (edit ? edit.selection?.id === item.id : readonly?.selectedDeskId === item.id)}
-                held={held !== null && sameCell(held.from, cell)}
-                target={draggingFront ? (frontEdgeOf(grid, cell) && !item ? 'valid' : 'invalid') : null}
-                interactive={interactive}
-                dim={Boolean(readonly?.highlighted) && item?.kind === 'desk' && !inRule}
-                mark={info?.mark ?? null}
-                emphasised={inRule}
-                toolActive={edit !== null && (edit.tool !== null || edit.moving !== null)}
-              />
-            )
-          })}
-          {readonly?.line && <DistanceLine classroom={classroom} line={readonly.line} />}
-        </div>
+        ))}
+        {allSlots(grid).map((slot) => {
+          const item = itemAt(classroom, slot)
+          const deskId = item?.kind === 'desk' ? item.id : null
+          const info = deskId ? readonly?.deskInfo.get(deskId) : undefined
+          const inRule = deskId !== null && readonly?.highlighted?.has(deskId) === true
+          const isCell = slot.kind === 'cell'
+          const text = !item ? '' : item.kind === 'door' ? 'Door' : item.kind === 'teacherDesk' ? "Teacher's desk" : readonly ? (info?.name ?? '') : 'Desk'
+          const itemSelected = item !== null && (edit ? isSameItem(edit.selection, item) : readonly?.selectedDeskId === item.id)
+          const wallSelected = edit?.selection?.kind === 'wall' && slot.kind === 'wall' && edit.selection.wall === slot.wall && !item
+          const selected = itemSelected || wallSelected
+          return (
+            <SlotView
+              key={slotKey(slot)}
+              slot={slot}
+              item={item}
+              doorNumber={item?.kind === 'door' && classroom.doors.length > 1 ? classroom.doors.findIndex((d) => d.id === item.id) + 1 : 0}
+              text={text}
+              ariaLabel={describe(slot)}
+              focusable={slotKey(slot) === focusKey}
+              selected={selected}
+              held={held !== null && sameSlot(held.from, slot)}
+              interactive={interactive}
+              dim={Boolean(readonly?.highlighted) && deskId !== null && !inRule}
+              mark={info?.mark ?? null}
+              emphasised={inRule}
+              toolActive={edit !== null && (edit.tool !== null || edit.moving !== null)}
+              band={isCell ? null : roles[slot.wall]}
+              columns={grid.columns}
+              rows={grid.rows}
+            />
+          )
+        })}
+        {readonly?.line && <DistanceLine classroom={classroom} line={readonly.line} />}
       </div>
     </div>
   )
 }
 
-function DistanceLine({ classroom, line }: { classroom: Classroom; line: { from: string; to: string; label: string } }) {
-  const from = classroom.desks.find((d) => d.id === line.from)?.cell
-  const to = classroom.desks.find((d) => d.id === line.to)?.cell
-  if (!from || !to) return null
-  const { columns, rows } = classroom.grid
-  const centre = (cell: Cell) => ({ x: ((cell.column + 0.5) / columns) * 100, y: ((cell.row + 0.5) / rows) * 100 })
-  const a = centre(from)
-  const b = centre(to)
-  return (
-    <div className="distance-line" aria-hidden="true">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} vectorEffect="non-scaling-stroke" />
-      </svg>
-      <span className="distance-label" style={{ left: `${(a.x + b.x) / 2}%`, top: `${(a.y + b.y) / 2}%` }}>
-        {line.label}
-      </span>
-    </div>
-  )
+function isSameItem(selection: Selection | null, item: Item): boolean {
+  return selection !== null && selection.kind !== 'wall' && selection.kind === item.kind && selection.id === item.id
 }

@@ -37,7 +37,7 @@ func Solve(ctx context.Context, req Request, opts Options) (Response, error) {
 		return Response{}, err
 	}
 	r := newRoom(req)
-	problem, err := seating.NewProblem(r.seats, r.people(), FrontScores(r.rows), r.engineRules())
+	problem, err := seating.NewProblem(r.seats, r.people(), r.frontTable, r.engineRules())
 	if err != nil {
 		return Response{}, fmt.Errorf("solver: engine rejected a validated request: %w", err)
 	}
@@ -66,7 +66,6 @@ func Solve(ctx context.Context, req Request, opts Options) (Response, error) {
 }
 
 func (r room) respond(req Request, ranked []seating.Individual) Response {
-	frontScores := FrontScores(r.rows)
 	studentIndex := r.studentIndex()
 	response := Response{Arrangements: make([]Arrangement, len(ranked))}
 	for i, individual := range ranked {
@@ -74,7 +73,7 @@ func (r room) respond(req Request, ranked []seating.Individual) Response {
 		outcomes := make([]Outcome, len(req.Rules))
 		met := 0
 		for j, rule := range req.Rules {
-			outcomes[j] = r.outcomeOf(rule, seatOf, studentIndex, frontScores)
+			outcomes[j] = r.outcomeOf(rule, seatOf, studentIndex)
 			if outcomes[j].Result == ResultMet {
 				met++
 			}

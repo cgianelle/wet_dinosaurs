@@ -1,4 +1,4 @@
-import type { Cell, Classroom, Edge, Grid, MarkerKind } from './types'
+import type { Cell, Classroom, Door, Grid, Wall, WallRole } from './types'
 
 export const sameCell = (a: Cell, b: Cell): boolean => a.column === b.column && a.row === b.row
 
@@ -10,45 +10,37 @@ export const inGrid = (grid: Grid, cell: Cell): boolean =>
   cell.row >= 0 &&
   cell.row < grid.rows
 
-export type Occupant =
-  | { readonly kind: 'desk'; readonly id: string }
-  | { readonly kind: MarkerKind; readonly id: string }
+export type Occupant = { readonly kind: 'desk' | 'teacherDesk'; readonly id: string }
 
+/** What sits in a grid cell: a desk, the teacher's desk, or nothing. Walls and doors are not cells. */
 export function occupantOf(classroom: Classroom, cell: Cell): Occupant | null {
   const desk = classroom.desks.find((d) => sameCell(d.cell, cell))
   if (desk) return { kind: 'desk', id: desk.id }
-  const marker = classroom.markers.find((m) => sameCell(m.cell, cell))
-  return marker ? { kind: marker.kind, id: marker.id } : null
+  const teacher = classroom.teacherDesk
+  return teacher && sameCell(teacher.cell, cell) ? { kind: 'teacherDesk', id: teacher.id } : null
 }
 
-/**
- * The edge a Front marker at `cell` marks, or null when the cell is a corner, interior or off the grid.
- * A cell touching two opposite edges (a one-wide or one-tall room) resolves to left, or top (AD-11).
- */
-export function frontEdgeOf(grid: Grid, cell: Cell): Edge | null {
-  if (!inGrid(grid, cell)) return null
-  const onLeft = cell.column === 0
-  const onRight = cell.column === grid.columns - 1
-  const onTop = cell.row === 0
-  const onBottom = cell.row === grid.rows - 1
-  const isCorner = (onLeft || onRight) && (onTop || onBottom)
-  if (isCorner) return null
-  if (onLeft) return 'left'
-  if (onRight) return 'right'
-  if (onTop) return 'top'
-  if (onBottom) return 'bottom'
-  return null
+/** How many cell-aligned positions a wall has: columns for top and bottom, rows for left and right. */
+export const wallLength = (grid: Grid, wall: Wall): number =>
+  wall === 'top' || wall === 'bottom' ? grid.columns : grid.rows
+
+/** Door positions are integer indexes within the wall's length; corners are not positions. */
+export const doorSpotOnWall = (grid: Grid, wall: Wall, index: number): boolean =>
+  Number.isInteger(index) && index >= 0 && index < wallLength(grid, wall)
+
+export const sameDoorSpot = (a: Pick<Door, 'wall' | 'index'>, b: Pick<Door, 'wall' | 'index'>): boolean =>
+  a.wall === b.wall && a.index === b.index
+
+const OPPOSITE: Readonly<Record<Wall, Wall>> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }
+
+/** Front, Back and Side labels follow the front wall (FR-6). Derived, never stored. */
+export function wallRoles(frontWall: Wall): Readonly<Record<Wall, WallRole>> {
+  const roles: Record<Wall, WallRole> = { top: 'side', bottom: 'side', left: 'side', right: 'side' }
+  roles[frontWall] = 'front'
+  roles[OPPOSITE[frontWall]] = 'back'
+  return roles
 }
 
-/** The Front tool is unavailable only when both dimensions are 2 or less (AD-11). */
-export const hasValidFrontCell = (grid: Grid): boolean => grid.columns >= 3 || grid.rows >= 3
-
-export function validFrontCells(grid: Grid): Cell[] {
-  const cells: Cell[] = []
-  for (let row = 0; row < grid.rows; row++) {
-    for (let column = 0; column < grid.columns; column++) {
-      if (frontEdgeOf(grid, { column, row })) cells.push({ column, row })
-    }
-  }
-  return cells
-}
+/** Doors cut off when the grid becomes `grid`: a door goes when its aligned column or row does. */
+export const doorsOutside = (doors: readonly Door[], grid: Grid): Door[] =>
+  doors.filter((d) => !doorSpotOnWall(grid, d.wall, d.index))

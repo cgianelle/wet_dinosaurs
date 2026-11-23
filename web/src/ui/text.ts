@@ -2,18 +2,45 @@ import type { Blocker } from '../model/blockers'
 import type { Command, Rejection } from '../model/classroom'
 import type { Outcome, OutcomeResult } from '../model/contract'
 import type { Feedback } from '../model/history'
-import { limitMessage, MAX_NAME_LENGTH, MAX_STUDENTS } from '../model/limits'
+import { isLimitField, limitMessage, MAX_NAME_LENGTH, MAX_STUDENTS } from '../model/limits'
 import type { RuleProblem } from '../model/rules'
-import type { Classroom, MarkerKind, Rule, RuleType } from '../model/types'
+import { wallRoles } from '../model/geometry'
+import type { Classroom, Rule, RuleType, Wall, WallRole } from '../model/types'
 import type { SolveFailure } from '../solver/client'
 
-export const MARKER_LABELS: Readonly<Record<MarkerKind, string>> = {
-  front: 'Front',
-  back: 'Back',
-  side: 'Side',
-  door: 'Door',
-  teacherDesk: "Teacher's desk",
+export const WALL_ROLE_LABELS: Readonly<Record<WallRole, string>> = {
+  front: 'Front of room',
+  back: 'Back of room',
+  side: 'Side wall',
 }
+
+export const WALL_NAMES: Readonly<Record<Wall, string>> = { top: 'top', bottom: 'bottom', left: 'left', right: 'right' }
+
+export const WALL_CHOICES: readonly { readonly wall: Wall; readonly label: string }[] = [
+  { wall: 'top', label: 'Top' },
+  { wall: 'bottom', label: 'Bottom' },
+  { wall: 'left', label: 'Left' },
+  { wall: 'right', label: 'Right' },
+]
+
+const OPPOSITE_WALL: Readonly<Record<Wall, Wall>> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }
+
+const ROW_DIRECTION: Readonly<Record<Wall, string>> = {
+  top: 'rows count down from it',
+  bottom: 'rows count up from it',
+  left: 'rows count from left to right',
+  right: 'rows count from right to left',
+}
+
+/** The sentence under "How rules are judged" that names the current front wall (UX S3). */
+export const frontWallSentence = (wall: Wall): string => `Your front wall is the ${wall} wall: ${ROW_DIRECTION[wall]}.`
+
+/** The label a wall band carries, derived from the front wall. */
+export const wallLabel = (frontWall: Wall, wall: Wall): string => WALL_ROLE_LABELS[wallRoles(frontWall)[wall]]
+
+/** Announced when the front wall changes (UX S1). */
+export const frontWallAnnouncement = (wall: Wall): string =>
+  `Front wall is now the ${wall} wall. Back is the ${OPPOSITE_WALL[wall]} wall. Rules now count rows from the ${wall}.`
 
 export const RULE_TYPE_LABELS: Readonly<Record<RuleType, string>> = {
   front: 'Front',
@@ -28,9 +55,9 @@ export const RULE_TYPE_GLOSS: Readonly<Record<RuleType, string>> = {
 }
 
 export const HOW_RULES_ARE_JUDGED = [
-  'Front: rows are counted from the front-most desk row. Each row gets a score that runs from best at the front to worst at the back. A row above zero is Met, a row at exactly zero is Neutral, a row below zero is Not met. Neutral only happens in rooms with an odd number of desk rows (3 or more). In a 5-row room, rows 1 and 2 are Met, row 3 Neutral, rows 4 and 5 Not met.',
-  'Not near: near means 2 desk steps or fewer (rows plus columns; gaps count; diagonal neighbours and two desks apart in a row are near). Met only when they are more than 2 steps apart.',
-  'Isle: met when the student sits in the leftmost or rightmost column that has a desk.',
+  'Front: rows are lines of desks parallel to the front wall, counted outward from it, so they follow the front wall, not the screen. Row 1 is the row of desks nearest the front wall; rows with no desks are not counted. Each row gets a score that runs from best at the front to worst at the back, stretched to fit the number of rows in your room. A row above zero is Met, a row at exactly zero is Neutral, a row below zero is Not met. For example, in a room with 5 rows of desks, rows 1 and 2 are Met, row 3 is Neutral, rows 4 and 5 are Not met.',
+  'Not near: near means 2 desk steps or fewer (rows plus columns; gaps count; diagonal neighbours and two desks apart in a row are near). Met only when they are more than 2 steps apart. It does not depend on the front wall.',
+  'Isle: an outside column is one of the two outermost lines of desks running away from the front wall, the ones nearest the two side walls. Met when the student sits in either. With the front wall at the top or bottom, these are the leftmost and rightmost columns that have a desk. With the front wall on the left or right, they are the topmost and bottommost rows that have a desk. The teacher\'s desk does not count.',
 ] as const
 
 export type NameOf = (studentId: string) => string
@@ -82,14 +109,16 @@ export function rejectionMessage(rejection: Rejection, command: Command, classro
       return command.type === 'moveDesk' || command.type === 'placeDesk'
         ? 'That cell already has a desk. Desk returned.'
         : 'That cell is already taken. Item returned.'
+    case 'doorSpotTaken':
+    case 'doorOffWall':
+      return 'A door goes on a free spot on a wall.'
+    case 'doorLimit':
+    case 'teacherDeskLimit':
+      return 'Already placed. Move or remove it.'
     case 'outOfGrid':
       return 'That spot is outside the room.'
     case 'deskLimit':
       return limitMessage('desks')
-    case 'markerLimit':
-      return 'Already placed. Move or remove it.'
-    case 'frontNotOnEdge':
-      return 'The Front marker goes on the edge of the room, not in a corner or the middle.'
     case 'unknownItem':
       return 'That item is no longer in the room.'
     case 'gridLimit':
@@ -97,7 +126,7 @@ export function rejectionMessage(rejection: Rejection, command: Command, classro
     case 'gridTooSmall':
       return 'Rooms need at least 1 column and 1 row.'
     case 'resizeRemoves':
-      return 'Shrinking the room would remove some desks or markers.'
+      return "Shrinking the room would remove some desks, doors or the teacher's desk."
     case 'studentLimit':
       return limitMessage('students')
     case 'invalidName':
@@ -146,12 +175,20 @@ export function feedbackMessage(feedback: Feedback, classroom: Classroom, before
       return 'Rule updated.'
     case 'rename student':
       return 'Student renamed.'
-    case 'place marker':
-      return 'Marker placed.'
-    case 'move marker':
-      return 'Marker moved.'
-    case 'remove marker':
-      return 'Marker removed.'
+    case "place teacher's desk":
+      return "Teacher's desk placed."
+    case "move teacher's desk":
+      return "Teacher's desk moved."
+    case "remove teacher's desk":
+      return "Teacher's desk removed."
+    case 'place door':
+      return `Door added. ${plural(classroom.doors.length, 'door')}.`
+    case 'move door':
+      return 'Door moved.'
+    case 'remove door':
+      return 'Door removed.'
+    case 'change front wall':
+      return frontWallAnnouncement(classroom.frontWall)
     case 'resize room':
       return `Room resized to ${classroom.grid.columns} by ${classroom.grid.rows}.`
     case 'start over':
@@ -174,15 +211,12 @@ export function blockerText(blocker: Blocker): string {
           : `Remove ${plural(gap, 'student')} or add ${plural(gap, 'desk')}.`
       return `${plural(desks, 'desk')}, ${plural(students, 'student')}. ${fix}`
     }
-    case 'noFrontMarker':
-      return 'Place the Front marker on a cell at the edge of the room.'
-    case 'frontMarkerNotOnEdge':
-      return 'Move the Front marker to the edge of the room, not a corner.'
     case 'ruleError':
       return '1 rule needs attention.'
   }
 }
 
+/** One variant per client error-union member (W-7, UX S6). Details are shown only under "Show details". */
 export function failureMessage(failure: SolveFailure): string {
   switch (failure.kind) {
     case 'unreachable':
@@ -190,29 +224,20 @@ export function failureMessage(failure: SolveFailure): string {
     case 'timeout':
       return 'The seating service took too long. Try again.'
     case 'busy':
-      return "We couldn't get seating plans because the seating service is busy right now. Your room, students and rules are still here."
+      return 'The seating service is busy right now. Try again in a moment.'
     case 'rejected':
-      return `The seating service couldn't use this room: ${rejectedReason(failure)}. Your room, students and rules are still here.`
+      return failure.code === 'limit_exceeded' && isLimitField(failure.field)
+        ? `${limitMessage(failure.field)} Try again.`
+        : 'Something went wrong on our side. Try again.'
     case 'internal':
       return 'Something went wrong on our side. Try again.'
   }
 }
 
-function rejectedReason(failure: Extract<SolveFailure, { kind: 'rejected' }>): string {
-  switch (failure.code) {
-    case 'limit_exceeded':
-      return failure.field === 'desks' || failure.field === 'students' || failure.field === 'grid.columns' || failure.field === 'grid.rows'
-        ? limitMessage(failure.field).replace(/\.$/, '')
-        : 'the room is over a limit'
-    case 'count_mismatch':
-      return 'the number of students and desks differ'
-    case 'no_students':
-      return 'there are no students'
-    case 'invalid_front_edge':
-      return 'the Front marker is not on an edge'
-    default:
-      return 'something in it was not accepted'
-  }
+/** The technical lines behind "Show details": the error code, and the field when there is one. */
+export function failureDetails(failure: SolveFailure): string {
+  if (failure.kind !== 'rejected') return `Error: ${failure.kind}`
+  return `Error code: ${failure.code}${failure.field ? `. Field: ${failure.field}` : ''}`
 }
 
 export const OUTCOME_LABEL: Readonly<Record<OutcomeResult, string>> = {
@@ -232,13 +257,13 @@ export function reasonText(rule: Rule, outcome: Outcome, nameOf: NameOf): string
   const { detail } = outcome
   switch (rule.type) {
     case 'front':
-      return `${nameOf(rule.studentId)} sits in row ${detail.row ?? '?'} of ${detail.rows ?? '?'}`
+      return `${nameOf(rule.studentId)} sits in row ${detail.row ?? '?'} of ${detail.rows ?? '?'}, counting from the front wall`
     case 'notNear': {
       const distance = detail.distance ?? 0
       return `${nameOf(rule.studentIds[0])} sits ${plural(distance, 'desk')} from ${nameOf(rule.studentIds[1])}`
     }
     case 'isle':
-      return `${nameOf(rule.studentId)} sits in column ${detail.column ?? '?'} of ${detail.columns ?? '?'}${outcome.result === 'met' ? ', an outside column' : ', not an outside column'}`
+      return `${nameOf(rule.studentId)} sits in column ${detail.column ?? '?'} of ${detail.columns ?? '?'} along the front wall${outcome.result === 'met' ? ', an outside column' : ', not an outside column'}`
   }
 }
 

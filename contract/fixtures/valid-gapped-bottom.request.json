@@ -1,0 +1,97 @@
+{
+  "grid": {
+    "columns": 7,
+    "rows": 6
+  },
+  "frontEdge": "bottom",
+  "desks": [
+    {
+      "id": "desk0",
+      "column": 0,
+      "row": 0
+    },
+    {
+      "id": "desk1",
+      "column": 3,
+      "row": 0
+    },
+    {
+      "id": "desk2",
+      "column": 6,
+      "row": 0
+    },
+    {
+      "id": "desk3",
+      "column": 0,
+      "row": 3
+    },
+    {
+      "id": "desk4",
+      "column": 3,
+      "row": 3
+    },
+    {
+      "id": "desk5",
+      "column": 6,
+      "row": 3
+    },
+    {
+      "id": "desk6",
+      "column": 3,
+      "row": 5
+    }
+  ],
+  "students": [
+    {
+      "id": "student0"
+    },
+    {
+      "id": "student1"
+    },
+    {
+      "id": "student2"
+    },
+    {
+      "id": "student3"
+    },
+    {
+      "id": "student4"
+    },
+    {
+      "id": "student5"
+    },
+    {
+      "id": "student6"
+    }
+  ],
+  "rules": [
+    {
+      "id": "front-0",
+      "type": "front",
+      "studentId": "student0"
+    },
+    {
+      "id": "front-1",
+      "type": "front",
+      "studentId": "student1"
+    },
+    {
+      "id": "isle-2",
+      "type": "isle",
+      "studentId": "student2"
+    },
+    {
+      "id": "isle-3",
+      "type": "isle",
+      "studentId": "student3"
+    },
+    {
+      "id": "near-4-5",
+      "type": "notNear",
+      "studentIds": [
+        "student4",
+        "student5"
+      ]
+    }
+  ]
+}

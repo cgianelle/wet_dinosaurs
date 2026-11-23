@@ -55,6 +55,18 @@ describe('contract fixtures', () => {
   })
 })
 
+describe('gapped rooms, one per front wall', () => {
+  it.each(['top', 'bottom', 'left', 'right'])('counts only occupied rows and columns when the front is %s', (edge) => {
+    const request = readFixture(`valid-gapped-${edge}.request.json`) as SolveRequest
+    expect(request.frontEdge).toBe(edge)
+    const response = responseSchema.parse(readFixture(`valid-gapped-${edge}.response.json`))
+    for (const outcome of response.arrangements.flatMap((a) => a.outcomes)) {
+      expect(outcome.detail.rows ?? 0).toBeLessThanOrEqual(3)
+      expect(outcome.detail.columns ?? 0).toBeLessThanOrEqual(3)
+    }
+  })
+})
+
 describe('solve', () => {
   it('returns the decoded response for a 200 fixture', async () => {
     const body = readFixture('valid-minimal.response.json')

@@ -47,55 +47,86 @@ describe('desks', () => {
   })
 })
 
-describe('markers', () => {
-  const marker = (id: string, kind: 'front' | 'back' | 'side' | 'door' | 'teacherDesk', column: number, row: number): Command => ({
-    type: 'placeMarker',
-    id,
-    kind,
-    cell: { column, row },
+describe('front wall', () => {
+  it('defaults to top and is never rejected, for any of the four walls', () => {
+    expect(emptyClassroom().frontWall).toBe('top')
+    for (const wall of ['top', 'bottom', 'left', 'right'] as const) {
+      expect(run(emptyClassroom(), { type: 'setFrontWall', wall }).frontWall).toBe(wall)
+    }
   })
 
-  it('accepts Front on a non-corner edge cell only', () => {
-    const c = emptyClassroom()
-    expect(rejection(c, marker('f', 'front', 0, 0))).toEqual({ reason: 'frontNotOnEdge' })
-    expect(rejection(c, marker('f', 'front', 3, 3))).toEqual({ reason: 'frontNotOnEdge' })
-    expect(run(c, marker('f', 'front', 3, 0)).markers).toHaveLength(1)
+  it('moves no desk, door or teacher desk', () => {
+    const before = run(emptyClassroom(), desk('d', 1, 1), { type: 'placeDoor', id: 'door', wall: 'top', index: 2 })
+    const after = run(before, { type: 'setFrontWall', wall: 'left' })
+    expect({ ...after, frontWall: 'top' }).toEqual(before)
   })
+})
 
-  it('moves the existing Front instead of duplicating it', () => {
-    const c = run(emptyClassroom(), marker('f', 'front', 3, 0), marker('g', 'front', 0, 2))
-    expect(c.markers).toEqual([{ id: 'f', kind: 'front', cell: { column: 0, row: 2 } }])
-  })
-
-  it('enforces the per-kind limits', () => {
-    let c = emptyClassroom()
-    for (let i = 0; i < 3; i++) c = run(c, marker(`door${i}`, 'door', i, 1))
-    expect(rejection(c, marker('door3', 'door', 3, 1))).toEqual({ reason: 'markerLimit', kind: 'door' })
-    c = run(c, marker('b', 'back', 0, 2))
-    expect(rejection(c, marker('b2', 'back', 1, 2))).toEqual({ reason: 'markerLimit', kind: 'back' })
-    c = run(c, marker('s1', 'side', 0, 3), marker('s2', 'side', 1, 3))
-    expect(rejection(c, marker('s3', 'side', 2, 3))).toEqual({ reason: 'markerLimit', kind: 'side' })
-  })
-
-  it('shares cells with nothing: a marker cannot sit on a desk', () => {
+describe('teacher desk', () => {
+  it('shares the grid with desks: one object per cell', () => {
     const c = run(emptyClassroom(), desk('d', 2, 2))
-    expect(rejection(c, marker('b', 'back', 2, 2))).toEqual({ reason: 'cellOccupied' })
+    expect(rejection(c, { type: 'placeTeacherDesk', id: 't', cell: { column: 2, row: 2 } })).toEqual({ reason: 'cellOccupied' })
+    const withTeacher = run(c, { type: 'placeTeacherDesk', id: 't', cell: { column: 0, row: 0 } })
+    expect(rejection(withTeacher, desk('d2', 0, 0))).toEqual({ reason: 'cellOccupied' })
   })
 
-  it('keeps Front valid when it is moved', () => {
-    const c = run(emptyClassroom(), marker('f', 'front', 3, 0))
-    expect(rejection(c, { type: 'moveMarker', id: 'f', to: { column: 3, row: 3 } })).toEqual({ reason: 'frontNotOnEdge' })
+  it('allows at most one, and it is not a desk for the cap or the count', () => {
+    const c = run(emptyClassroom(), { type: 'placeTeacherDesk', id: 't', cell: { column: 0, row: 0 } })
+    expect(rejection(c, { type: 'placeTeacherDesk', id: 'u', cell: { column: 1, row: 0 } })).toEqual({ reason: 'teacherDeskLimit' })
+    expect(c.desks).toHaveLength(0)
+  })
+
+  it('moves and removes, and refuses an occupied cell', () => {
+    let c = run(emptyClassroom(), desk('d', 1, 0), { type: 'placeTeacherDesk', id: 't', cell: { column: 0, row: 0 } })
+    expect(rejection(c, { type: 'moveTeacherDesk', to: { column: 1, row: 0 } })).toEqual({ reason: 'cellOccupied' })
+    c = run(c, { type: 'moveTeacherDesk', to: { column: 3, row: 3 } })
+    expect(c.teacherDesk).toEqual({ id: 't', cell: { column: 3, row: 3 } })
+    expect(run(c, { type: 'removeTeacherDesk' }).teacherDesk).toBeNull()
+  })
+})
+
+describe('doors', () => {
+  const door = (id: string, wall: 'top' | 'bottom' | 'left' | 'right', index: number): Command => ({ type: 'placeDoor', id, wall, index })
+
+  it('are wall openings, not cells: a door never blocks a grid cell', () => {
+    const c = run(emptyClassroom(), door('a', 'top', 0), desk('d', 0, 0))
+    expect(c.desks).toHaveLength(1)
+  })
+
+  it('accept every position along a wall and nothing past its length', () => {
+    const c = emptyClassroom() // 8 columns, 6 rows
+    expect(run(c, door('a', 'top', 7)).doors).toHaveLength(1)
+    expect(run(c, door('a', 'left', 5)).doors).toHaveLength(1)
+    expect(rejection(c, door('a', 'top', 8))).toEqual({ reason: 'doorOffWall' })
+    expect(rejection(c, door('a', 'right', 6))).toEqual({ reason: 'doorOffWall' })
+    expect(rejection(c, door('a', 'bottom', -1))).toEqual({ reason: 'doorOffWall' })
+  })
+
+  it('allows several on one wall but not two at one position, and at most three in total', () => {
+    let c = run(emptyClassroom(), door('a', 'top', 1), door('b', 'top', 2))
+    expect(rejection(c, door('c', 'top', 1))).toEqual({ reason: 'doorSpotTaken' })
+    c = run(c, door('c', 'left', 1))
+    expect(rejection(c, door('d', 'bottom', 0))).toEqual({ reason: 'doorLimit' })
+  })
+
+  it('move along or between walls, but not onto a taken spot', () => {
+    const c = run(emptyClassroom(), door('a', 'top', 1), door('b', 'top', 2))
+    expect(rejection(c, { type: 'moveDoor', id: 'a', wall: 'top', index: 2 })).toEqual({ reason: 'doorSpotTaken' })
+    expect(run(c, { type: 'moveDoor', id: 'a', wall: 'right', index: 3 }).doors[0]).toEqual({ id: 'a', wall: 'right', index: 3 })
+    expect(run(c, { type: 'removeDoor', id: 'a' }).doors.map((d) => d.id)).toEqual(['b'])
   })
 })
 
 describe('resizeGrid', () => {
   const room = () =>
-    run(emptyClassroom(), desk('d1', 7, 5), desk('d2', 0, 0), {
-      type: 'placeMarker',
-      id: 'door',
-      kind: 'door',
-      cell: { column: 6, row: 5 },
-    })
+    run(
+      emptyClassroom(),
+      desk('d1', 7, 5),
+      desk('d2', 0, 0),
+      { type: 'placeTeacherDesk', id: 't', cell: { column: 6, row: 0 } },
+      { type: 'placeDoor', id: 'top-door', wall: 'top', index: 6 },
+      { type: 'placeDoor', id: 'side-door', wall: 'left', index: 2 },
+    )
 
   it('refuses sizes beyond 15 x 15 and below 1', () => {
     expect(rejection(emptyClassroom(), { type: 'resizeGrid', columns: 16, rows: 6 })).toEqual({
@@ -113,7 +144,8 @@ describe('resizeGrid', () => {
     expect(rejection(room(), { type: 'resizeGrid', columns: 6, rows: 4 })).toEqual({
       reason: 'resizeRemoves',
       desks: 1,
-      markers: ['door'],
+      teacherDesk: true,
+      doors: 1,
     })
     expect(resizeLoss(room(), 6, 4).desks).toHaveLength(1)
   })
@@ -121,7 +153,18 @@ describe('resizeGrid', () => {
   it('removes what is cut off once confirmed', () => {
     const c = run(room(), { type: 'resizeGrid', columns: 6, rows: 4, confirmed: true })
     expect(c.desks.map((d) => d.id)).toEqual(['d2'])
-    expect(c.markers).toEqual([])
+    expect(c.teacherDesk).toBeNull()
+    expect(c.doors.map((d) => d.id)).toEqual(['side-door'])
+  })
+
+  it('removes a door only when its aligned column or row is cut off', () => {
+    const c = run(room(), { type: 'resizeGrid', columns: 8, rows: 2, confirmed: true })
+    expect(c.doors.map((d) => d.id)).toEqual(['top-door'])
+    expect(rejection(room(), { type: 'resizeGrid', columns: 6, rows: 6 })).toMatchObject({ doors: 1, desks: 1 })
+  })
+
+  it('never loses a wall', () => {
+    expect(run(room(), { type: 'resizeGrid', columns: 1, rows: 1, confirmed: true }).frontWall).toBe('top')
   })
 
   it('grows without confirmation', () => {
@@ -241,8 +284,8 @@ describe('rules', () => {
 })
 
 describe('fillRoom', () => {
-  it('places a rectangle, skipping markers, in one command', () => {
-    const c = run(emptyClassroom(), { type: 'placeMarker', id: 'm', kind: 'door', cell: { column: 1, row: 0 } })
+  it("places a rectangle, skipping the teacher's desk cell, in one command", () => {
+    const c = run(emptyClassroom(), { type: 'placeTeacherDesk', id: 'm', cell: { column: 1, row: 0 } })
     const ids = Array.from({ length: 6 }, (_, i) => `n${i}`)
     const filled = run(c, { type: 'fillRoom', columns: 3, rows: 2, aisle: false, ids })
     expect(filled.desks).toHaveLength(5)
@@ -263,7 +306,16 @@ describe('fillRoom', () => {
 
 describe('startOver', () => {
   it('empties everything', () => {
-    const c = run(emptyClassroom(), desk('d', 0, 0), { type: 'addStudent', id: 's', name: 'A' }, { type: 'startOver' })
+    const c = run(
+      emptyClassroom(),
+      desk('d', 0, 0),
+      { type: 'placeDoor', id: 'door', wall: 'top', index: 0 },
+      { type: 'placeTeacherDesk', id: 't', cell: { column: 3, row: 3 } },
+      { type: 'setFrontWall', wall: 'right' },
+      { type: 'addStudent', id: 's', name: 'A' },
+      { type: 'startOver' },
+    )
     expect(c).toEqual(emptyClassroom())
+    expect(c.frontWall).toBe('top')
   })
 })

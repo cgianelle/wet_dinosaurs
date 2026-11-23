@@ -10,12 +10,14 @@ import (
 // rebase, rotateToFront or FrontScores: it physically turns a matrix of desk ids until the
 // front edge is on top, then reads rows and columns off the matrix (AD-7).
 
-type placedStudent struct{ row, column int } // 1-based, front-up, bounding box of the desks
+// placedStudent holds a student's physical cell (front-up matrix) and the dense rank of
+// that cell's row and column among the occupied ones (1-based).
+type placedStudent struct{ row, column, rowRank, columnRank int }
 
 type oracleView struct {
 	at      map[string]placedStudent // by student id
-	rows    int
-	columns int
+	rows    int                      // occupied rows
+	columns int                      // occupied columns
 }
 
 func oracleViewOf(req Request, assignments []Assignment) oracleView {
@@ -30,23 +32,34 @@ func oracleViewOf(req Request, assignments []Assignment) oracleView {
 		matrix = turnClockwise(matrix)
 	}
 	deskAt := map[string]placedStudent{}
-	minRow, maxRow, minCol, maxCol := math.MaxInt, -1, math.MaxInt, -1
+	occupiedRows, occupiedColumns := map[int]bool{}, map[int]bool{}
 	for r, line := range matrix {
 		for c, id := range line {
 			if id == "" {
 				continue
 			}
-			deskAt[id] = placedStudent{r, c}
-			minRow, maxRow = min(minRow, r), max(maxRow, r)
-			minCol, maxCol = min(minCol, c), max(maxCol, c)
+			deskAt[id] = placedStudent{row: r, column: c}
+			occupiedRows[r], occupiedColumns[c] = true, true
 		}
 	}
-	view := oracleView{at: map[string]placedStudent{}, rows: maxRow - minRow + 1, columns: maxCol - minCol + 1}
+	view := oracleView{at: map[string]placedStudent{}, rows: len(occupiedRows), columns: len(occupiedColumns)}
 	for _, a := range assignments {
 		p := deskAt[a.DeskID]
-		view.at[a.StudentID] = placedStudent{row: p.row - minRow + 1, column: p.column - minCol + 1}
+		p.rowRank, p.columnRank = occupiedBefore(occupiedRows, p.row)+1, occupiedBefore(occupiedColumns, p.column)+1
+		view.at[a.StudentID] = p
 	}
 	return view
+}
+
+// occupiedBefore counts the occupied lines with a smaller index.
+func occupiedBefore(occupied map[int]bool, index int) int {
+	count := 0
+	for line := range occupied {
+		if line < index {
+			count++
+		}
+	}
+	return count
 }
 
 func quarterTurnsToFront(edge string) int {
@@ -97,8 +110,8 @@ func oracleJudge(req Request, assignments []Assignment) (Scores, []Outcome) {
 		switch rule.Type {
 		case RuleFront:
 			p := view.at[rule.StudentID]
-			scores.Front += table[p.row-1]
-			switch score := table[p.row-1]; {
+			scores.Front += table[p.rowRank-1]
+			switch score := table[p.rowRank-1]; {
 			case score > 0:
 				outcome.Result = ResultMet
 			case score == 0:
@@ -106,7 +119,7 @@ func oracleJudge(req Request, assignments []Assignment) (Scores, []Outcome) {
 			default:
 				outcome.Result = ResultNotMet
 			}
-			outcome.Detail = Detail{Row: p.row, Rows: view.rows}
+			outcome.Detail = Detail{Row: p.rowRank, Rows: view.rows}
 		case RuleNotNear:
 			a, b := view.at[rule.StudentIDs[0]], view.at[rule.StudentIDs[1]]
 			d := abs2(a.row-b.row) + abs2(a.column-b.column)
@@ -120,14 +133,14 @@ func oracleJudge(req Request, assignments []Assignment) (Scores, []Outcome) {
 			outcome.Detail = Detail{Distance: d}
 		case RuleIsle:
 			p := view.at[rule.StudentID]
-			if p.column == 1 || p.column == view.columns {
+			if p.columnRank == 1 || p.columnRank == view.columns {
 				scores.Isle += 10
 				outcome.Result = ResultMet
 			} else {
 				scores.Isle -= 10
 				outcome.Result = ResultNotMet
 			}
-			outcome.Detail = Detail{Column: p.column, Columns: view.columns}
+			outcome.Detail = Detail{Column: p.columnRank, Columns: view.columns}
 		}
 		outcomes[i] = outcome
 	}

@@ -38,10 +38,8 @@ export const initialApp = (): AppState => ({
 /** The attempt Run would send now, or null when something blocks it (FR-16). */
 export function attemptFor(state: AppState): RunAttempt | null {
   const classroom = state.editor.present
-  const request = toRequest(classroom)
-  const fingerprint = currentFingerprint(classroom)
-  if (!request || !fingerprint || runBlockers(classroom).length > 0) return null
-  return { request, snapshot: classroom, fingerprint }
+  if (runBlockers(classroom).length > 0) return null
+  return { request: toRequest(classroom), snapshot: classroom, fingerprint: currentFingerprint(classroom) }
 }
 
 export const nextRunIdOf = (state: AppState): number => nextRunId(state.run)

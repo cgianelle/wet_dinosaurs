@@ -1,0 +1,253 @@
+{
+  "arrangements": [
+    {
+      "rank": 1,
+      "scores": {
+        "front": 20,
+        "nearBy": 40,
+        "isle": 20,
+        "total": 80,
+        "weighted100": 4880
+      },
+      "rulesMet": 5,
+      "rulesTotal": 5,
+      "assignments": [
+        {
+          "studentId": "student4",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student0",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk6"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front-0",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "front-1",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "isle-2",
+          "result": "met",
+          "detail": {
+            "column": 3,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "isle-3",
+          "result": "met",
+          "detail": {
+            "column": 1,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "near-4-5",
+          "result": "met",
+          "detail": {
+            "distance": 8
+          }
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "scores": {
+        "front": 20,
+        "nearBy": 40,
+        "isle": 20,
+        "total": 80,
+        "weighted100": 4880
+      },
+      "rulesMet": 5,
+      "rulesTotal": 5,
+      "assignments": [
+        {
+          "studentId": "student4",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student0",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk6"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front-0",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "front-1",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "isle-2",
+          "result": "met",
+          "detail": {
+            "column": 3,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "isle-3",
+          "result": "met",
+          "detail": {
+            "column": 1,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "near-4-5",
+          "result": "met",
+          "detail": {
+            "distance": 8
+          }
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "scores": {
+        "front": 20,
+        "nearBy": 40,
+        "isle": 20,
+        "total": 80,
+        "weighted100": 4880
+      },
+      "rulesMet": 5,
+      "rulesTotal": 5,
+      "assignments": [
+        {
+          "studentId": "student0",
+          "deskId": "desk0"
+        },
+        {
+          "studentId": "student1",
+          "deskId": "desk1"
+        },
+        {
+          "studentId": "student4",
+          "deskId": "desk2"
+        },
+        {
+          "studentId": "student3",
+          "deskId": "desk3"
+        },
+        {
+          "studentId": "student6",
+          "deskId": "desk4"
+        },
+        {
+          "studentId": "student2",
+          "deskId": "desk5"
+        },
+        {
+          "studentId": "student5",
+          "deskId": "desk6"
+        }
+      ],
+      "outcomes": [
+        {
+          "ruleId": "front-0",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "front-1",
+          "result": "met",
+          "detail": {
+            "row": 1,
+            "rows": 3
+          }
+        },
+        {
+          "ruleId": "isle-2",
+          "result": "met",
+          "detail": {
+            "column": 3,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "isle-3",
+          "result": "met",
+          "detail": {
+            "column": 1,
+            "columns": 3
+          }
+        },
+        {
+          "ruleId": "near-4-5",
+          "result": "met",
+          "detail": {
+            "distance": 8
+          }
+        }
+      ]
+    }
+  ]
+}
